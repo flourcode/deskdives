@@ -8,7 +8,7 @@
   Until an ID is filled in, this file does nothing.
 */
 (function () {
-  var GA_MEASUREMENT_ID = ""; // e.g. "G-ABC123DEF4"
+  var GA_MEASUREMENT_ID = "G-57J108WKB0"; // e.g. "G-ABC123DEF4"
 
   if (!GA_MEASUREMENT_ID) return;
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") return;
