@@ -1,0 +1,42 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 11,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 200 m",
+  "model": "Turtle SRPA21",
+  "ref": "SRPA21K1",
+  "nickname": "The PADI Turtle",
+  "line": "The Turtle in PADI colors: blue sunburst dial and a blue-and-red bezel.",
+  "key_numbers": [
+    [
+      "45",
+      "Case mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ]
+  ],
+  "specs": {
+    "Caliber": "4R36, automatic, day and date",
+    "Case": "45 mm steel, cushion",
+    "Dial": "Blue sunburst",
+    "Bezel": "Blue and red, one-way",
+    "Crystal": "Hardlex",
+    "Water resistance": "200 m"
+  },
+  "captions": {}
+}

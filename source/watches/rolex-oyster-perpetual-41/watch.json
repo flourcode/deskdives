@@ -1,0 +1,48 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 13,
+  "brand": "Rolex",
+  "collection": "Oyster Perpetual",
+  "type": "Everyday watch, 100 m",
+  "model": "Oyster Perpetual 41",
+  "ref": "124300",
+  "nickname": "Not the Submariner",
+  "line": "No bezel, no date, green dial. Not the Sub, but it came in the same green box.",
+  "key_numbers": [
+    [
+      "41",
+      "Case mm"
+    ],
+    [
+      "100",
+      "Water res. m"
+    ],
+    [
+      "70",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "Rolex 3230, automatic, chronometer",
+    "Case": "41 mm Oystersteel",
+    "Dial": "Green",
+    "Crystal": "Sapphire",
+    "Water resistance": "100 m",
+    "Power reserve": "About 70 hours"
+  },
+  "captions": {
+    "main.jpg": "New, on the box"
+  }
+}

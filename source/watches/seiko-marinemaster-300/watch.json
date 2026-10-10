@@ -1,0 +1,51 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 12,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 300 m",
+  "model": "MarineMaster 300",
+  "ref": "SBDX017",
+  "nickname": "The MM300",
+  "line": "Seiko's professional 300 m diver. A one-piece steel case with no caseback, and the 8L35 movement inside.",
+  "key_numbers": [
+    [
+      "44.3",
+      "Case mm"
+    ],
+    [
+      "300",
+      "Water res. m"
+    ],
+    [
+      "50",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "8L35, automatic, 26 jewels",
+    "Case": "44.3 mm steel, one-piece, DiaShield coated",
+    "Dial": "Black",
+    "Bezel": "Black, one-way",
+    "Water resistance": "300 m",
+    "Power reserve": "About 50 hours"
+  },
+  "captions": {
+    "main.jpg": "On the bracelet",
+    "2-driving.jpg": "Driving",
+    "3-on-the-bracelet.jpg": "On the wrist",
+    "4-lume.jpg": "Lume, on grey rubber"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 8,
+  "brand": "Sinn",
+  "collection": "Instrument watches",
+  "type": "Day-date, 100 m",
+  "model": "240 St",
+  "ref": "240.010",
+  "nickname": "The cushion",
+  "line": "A bead-blasted steel cushion case with an inner minute bezel, turned by the second crown. Day and date at 3.",
+  "key_numbers": [
+    [
+      "44",
+      "Case mm"
+    ],
+    [
+      "11",
+      "Thick mm"
+    ],
+    [
+      "100",
+      "Water res. m"
+    ],
+    [
+      "22",
+      "Lug mm"
+    ]
+  ],
+  "specs": {
+    "Movement": "Automatic, day and date",
+    "Case": "44 mm bead-blasted steel, cushion",
+    "Thickness": "11 mm",
+    "Lug width": "22 mm",
+    "Bezel": "Inner, 0–60 minutes, set by the second crown",
+    "Crystal": "Sapphire",
+    "Water resistance": "100 m"
+  },
+  "captions": {
+    "main.jpg": "On a brown rally strap"
+  }
+}

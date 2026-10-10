@@ -1,0 +1,50 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 10,
+  "brand": "Omega",
+  "collection": "Seamaster",
+  "type": "Diver's 600 m",
+  "model": "Planet Ocean",
+  "ref": "2201.50",
+  "nickname": "The first Planet Ocean",
+  "line": "The original 2005 Planet Ocean: 600 m, Co-Axial movement, helium valve, and an orange tip on the seconds hand.",
+  "key_numbers": [
+    [
+      "42",
+      "Case mm"
+    ],
+    [
+      "600",
+      "Water res. m"
+    ],
+    [
+      "48",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "Omega 2500 Co-Axial, automatic, chronometer",
+    "Case": "42 mm steel",
+    "Dial": "Black",
+    "Bezel": "Black, one-way",
+    "Helium valve": "At 10 o'clock",
+    "Crystal": "Sapphire",
+    "Water resistance": "600 m",
+    "Power reserve": "About 48 hours"
+  },
+  "captions": {
+    "main.jpg": "At the keyboard"
+  }
+}

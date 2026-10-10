@@ -1,20 +1,5 @@
 {
-  "order": 7,
-  "draft": false,
-  "brand": "Seiko",
-  "collection": "Prospex",
-  "model": "Turtle",
-  "ref": "TBD",
-  "nickname": "The cushion case",
-  "line": "Placeholder. Add the reference and your notes.",
-  "key_numbers": [],
-  "specs": {
-    "Caliber": "TBD",
-    "Case": "TBD",
-    "Crystal": "TBD",
-    "Water resistance": "TBD"
-  },
-  "acquired": "TBD",
+  "acquired": "",
   "wrist_rank": "",
   "deepest_dive": "",
   "take": [],
@@ -24,7 +9,47 @@
   "verdict_note": "",
   "paid": null,
   "math_quip": "",
-  "captions": {},
   "affiliate_url": "",
-  "affiliate_label": ""
+  "affiliate_label": "",
+  "draft": false,
+  "order": 9,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 200 m",
+  "model": "Turtle SRPB01",
+  "ref": "SRPB01K1",
+  "nickname": "The green Turtle",
+  "line": "The 1976 cushion-case diver, reissued with a green dial and limited to 3,500 pieces in 2016.",
+  "key_numbers": [
+    [
+      "45",
+      "Case mm"
+    ],
+    [
+      "13.5",
+      "Thick mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "3,500",
+      "Made"
+    ]
+  ],
+  "specs": {
+    "Caliber": "4R36, automatic, day and date",
+    "Case": "45 mm steel, cushion",
+    "Thickness": "13.5 mm",
+    "Dial": "Green",
+    "Bezel": "Black, one-way",
+    "Crystal": "Hardlex",
+    "Water resistance": "200 m",
+    "Edition": "3,500 pieces, 2016"
+  },
+  "captions": {
+    "main.jpg": "On the bracelet",
+    "2-with-coffee.jpg": "On leather, with coffee"
+  }
 }

@@ -602,10 +602,12 @@ def build_watch(w, i):
     pl = f'<a href="{prev["url"]}"><span class="label">← No. {prev["no"]}</span>{e(prev["title"])}</a>' if prev else '<a href="/watches/"><span class="label">← Collection</span>All watches</a>'
     nl = f'<a class="next" href="{nxt["url"]}"><span class="label">No. {nxt["no"]} →</span>{e(nxt["title"])}</a>' if nxt else '<a class="next" href="/watches/"><span class="label">Collection →</span>All watches</a>'
     sub = " · ".join(x for x in [w.get("brand"), w.get("collection"), w.get("type")] if x)
+    longest = max((len(x) for x in w["model"].split()), default=0)
+    h1_cls = " xlong" if longest > 11 else (" long" if longest > 8 else "")
     body = f"""  <div class="wrap">
     <section class="w-head">
       <span class="label">No. {w['no']} · {e(sub)}</span>
-      <h1 class="glow">{e(w['model'])}</h1>
+      <h1 class="glow{h1_cls}">{e(w['model'])}</h1>
       <p class="nick">{f"<i>{e(w.get('nickname'))}:</i> " if w.get('nickname') else ''}{e(w.get('line',''))}</p>
     </section>
     {timing}
@@ -770,7 +772,7 @@ Allow: /
 
 Sitemap: {SITE}/sitemap.xml
 """)
-    L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko Prospex, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
+    L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko, some Omega and other Swiss and German watches, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
          "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", f"- [About]({SITE}/about/)", "", "## Watches", ""]
     for w in WATCHES:
         bits = [w.get("ref") if w.get("ref") not in (None, "", "TBD") else None, w["specs"].get("Caliber") if w["specs"].get("Caliber") not in (None, "TBD") else None,

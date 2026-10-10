@@ -327,3 +327,6 @@ table.specs td.hot { color: var(--lume); }
   .modules.two .col-b, .modules.two .col-c { grid-column: 1 / -1; border-left: 0; padding-left: 0; }
 }
 .take .body .verdict:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+/* Long model names scale down so they never run off the screen */
+.w-head h1.long { font-size: clamp(56px, 12vw, 190px); }
+.w-head h1.xlong { font-size: clamp(44px, 10.5vw, 170px); }

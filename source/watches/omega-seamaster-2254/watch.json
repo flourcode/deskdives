@@ -1,0 +1,50 @@
+{
+  "acquired": "",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "draft": false,
+  "order": 7,
+  "brand": "Omega",
+  "collection": "Seamaster",
+  "type": "Diver's 300 m",
+  "model": "Seamaster 300M",
+  "ref": "2254.50",
+  "nickname": "The wave dial",
+  "line": "The Seamaster Professional from the Bond years: wave-pattern dial, helium escape valve at 10, chronometer inside.",
+  "key_numbers": [
+    [
+      "41",
+      "Case mm"
+    ],
+    [
+      "300",
+      "Water res. m"
+    ],
+    [
+      "44",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "Omega 1120, automatic, chronometer",
+    "Case": "41 mm steel",
+    "Dial": "Black wave pattern",
+    "Bezel": "Black, one-way",
+    "Helium valve": "At 10 o'clock",
+    "Crystal": "Sapphire",
+    "Water resistance": "300 m",
+    "Power reserve": "About 44 hours"
+  },
+  "captions": {
+    "main.jpg": "On an orange leather strap"
+  }
+}
