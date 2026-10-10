@@ -828,4 +828,7 @@ if __name__ == "__main__":
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
     build_videos(); build_journal(); build_about(); build_404(); build_static()
-    print(f"Built {len(WATCHES)} watches, {len(VIDEOS)} video(s), {len(POSTS)} journal entr{"y" if len(POSTS) == 1 else "ies"} into {OUT}")
+    nv, np_ = len(VIDEOS), len(POSTS)
+    v_word = "video" if nv == 1 else "videos"
+    p_word = "journal entry" if np_ == 1 else "journal entries"
+    print(f"Built {len(WATCHES)} watches, {nv} {v_word}, {np_} {p_word} into {OUT}")
