@@ -330,3 +330,10 @@ table.specs td.hot { color: var(--lume); }
 /* Long model names scale down so they never run off the screen */
 .w-head h1.long { font-size: clamp(56px, 12vw, 190px); }
 .w-head h1.xlong { font-size: clamp(44px, 10.5vw, 170px); }
+/* Keep the hero photo within one screen on desktops, so the headline is never below the fold */
+@media (min-width: 901px) {
+  .hero-link .plate img { height: clamp(380px, calc(100vh - 230px), 820px); object-fit: cover; object-position: 50% 45%; }
+}
+@media (max-width: 900px) {
+  .hero-link .plate img { max-height: 42vh; object-fit: cover; object-position: 50% 45%; }
+}
