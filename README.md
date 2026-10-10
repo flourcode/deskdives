@@ -1,1 +1,139 @@
-# deskdives
+# deskdives.com
+
+Dive watches. Built for adventure. Mostly worn to lunch.
+
+You run this site entirely from GitHub. You don't need to install anything or edit code. Every time you commit a change, AWS Amplify rebuilds the whole site in about two minutes: every page, image size, share preview, sitemap and search data.
+
+```
+source/
+  site.json         site-wide settings: tagline, YouTube link, email, featured watch, The math price
+  watches/          one folder per watch
+    _template/      copy this to add a watch (never published)
+    seiko-spb077/
+      watch.json    the watch's details and your notes
+      main.jpg      the big photo
+      dial.jpg ...  any other photos become gallery plates
+      figure.jpg    optional watercolor
+  videos.json       your YouTube videos, one entry each
+  journal/          journal entries, one text file each
+    images/         photos used in journal entries
+  about.md          the About page
+  brand/            about-watercolor.jpg, the art on the About page
+  build.py, site.css, site.js, analytics.js   (no need to touch, except analytics.js once)
+amplify.yml         tells Amplify how to build
+customHttp.yml      caching and security settings
+```
+
+## First-time setup
+
+1. Create a GitHub repository (for example `deskdives`) and upload everything in this folder to it: **Add file → Upload files**, drag the contents in, **Commit changes**.
+2. In AWS Amplify: **Create new app → GitHub**, pick the repository and the `main` branch, and deploy. Amplify reads `amplify.yml`.
+3. **Hosting → Custom domains → Add domain** → `deskdives.com`, including `www`.
+4. **Hosting → Rewrites and redirects → Manage redirects → Open text editor**, and paste:
+
+```json
+[
+  { "source": "https://www.deskdives.com/<*>", "status": "301", "target": "https://deskdives.com/<*>" },
+  { "source": "https://www.deskdives.com", "status": "301", "target": "https://deskdives.com" },
+  { "source": "/<*>", "status": "404", "target": "/404.html" }
+]
+```
+
+5. Open `source/site.json` and fill in `youtube` with your channel link (for example `https://www.youtube.com/@yourhandle`) and `email` if you want it shown. YouTube links and the subscribe box stay hidden until `youtube` is filled in.
+
+## Add photos to a watch
+
+Open the watch's folder on GitHub (for example `source/watches/seiko-turtle`), click **Add file → Upload files**, drop the photos in, and commit.
+
+- **main.jpg** is the big photo. If there's no main.jpg, the first photo in name order is used.
+- **Any other photo** becomes a gallery plate, in name order. Name them so they sort the way you want: `2-dial.jpg`, `3-lume.jpg`, `4-wrist.jpg`.
+- **A photo whose name starts with "figure"** (figure.jpg) shows as a watercolor on that page.
+- JPG or PNG, any size up to about 25 MB. The site makes the smaller versions and strips location data automatically.
+- To give a photo a caption, add it under `captions` in watch.json: `"captions": { "3-lume.jpg": "Lume, closet, 2 a.m." }`. Without one, the caption is the file name.
+
+To replace a photo, upload a new file with the same name.
+
+## Add a watch
+
+1. On GitHub, open `source/watches/_template/watch.json` and copy everything in it.
+2. Click **Add file → Create new file** and name it `source/watches/citizen-ny0040/watch.json`, using your own folder name: lowercase, with dashes, no spaces. Typing the slash creates the folder. Paste, edit, and commit.
+3. Upload photos into the new folder as described above.
+
+## What's in watch.json
+
+```json
+"order": 9,                  number on the site: No. 09
+"draft": false,              true hides the watch while you work on it
+"brand": "Citizen",
+"collection": "Promaster",
+"type": "Diver's 200 m",
+"model": "NY0040",           the giant headline
+"ref": "NY0040-09E",
+"nickname": "The Fugu",      shows in italics before the line
+"line": "One dry sentence.",
+"key_numbers": [["42.0","Case mm"],["200","Water res. m"]],   the glowing strip, as many as you like
+"specs": { "Caliber": "8203", "Case": "42 mm steel" },        any rows you want, in order
+"acquired": "2019, used",
+"wrist_rank": 1,             1 shows as P1 · WRIST TIME
+"deepest_dive": "The office pool",
+"take": ["First paragraph.", "Second paragraph."],
+"likes": ["One thing per line"],
+"annoyances": ["One thing per line"],
+"verdict": "Yes.",           Buy it again?
+"verdict_note": "But on the Jubilee this time.",
+"paid": 180,                 a number turns on The math. null hides it
+"math_quip": "Enough for a dive trip to Belize.",
+"captions": {},
+"affiliate_url": "",         a link here shows "Where to find one" with a commission note
+"affiliate_label": ""
+```
+
+Keep the quotes, commas and square brackets as they are. Text in the take, likes and annoyances can use `**bold**`, `*italic*` and `[links](https://...)`.
+
+## Add a video
+
+Open `source/videos.json`, click the pencil, and add an entry at the top of the list:
+
+```json
+{
+  "id": "abc123XYZ",
+  "title": "SPB077, one year later",
+  "date": "2026-11",
+  "length": "12:40",
+  "summary": "One line about it.",
+  "watches": ["seiko-spb077"]
+},
+```
+
+`id` is the part of the YouTube link after `watch?v=` or `youtu.be/`. `watches` lists the folder names of the watches in the video, so it appears on those watch pages too. Videos load from YouTube only when someone presses play, which keeps the site fast. Entries with an empty `id` are hidden.
+
+## Write a journal entry
+
+1. Open `source/journal/_example-entry.md` and copy it.
+2. **Add file → Create new file**, name it `source/journal/2026-11-lume-test.md` (the name becomes the web address), paste, and change the lines between the dashes. Set `draft: false` when it's ready.
+3. Write below the dashes. Blank lines separate paragraphs, `## ` starts a subheading, `- ` starts a list item.
+4. For photos, upload them to `source/journal/images` and add a line like `![Caption](lume-test.jpg)`.
+
+## Other settings in site.json
+
+- `featured` is the watch shown large on the home page, and its photo becomes the site's default share image. `on_wrist` is the "On the wrist this week" watch. Both use folder names.
+- `benchmark` is the Rolex price used in The math. Update `price` and `note` when Rolex changes its prices.
+- `tagline`, `eyebrow`, `rated`, `deepest_dive`, `dateline` and `depth_note` are the small lines around the masthead.
+
+## Google Analytics
+
+Open `source/analytics.js`, paste your Measurement ID (`G-XXXXXXXXXX`) between the quotes on the `GA_MEASUREMENT_ID` line, and commit. Besides page views, it records video plays, shares, YouTube clicks and affiliate clicks.
+
+## Sharing and search
+
+Every watch page gets its own share image: the main photo in a logbook frame on abyss blue. It shows when the link is posted to Messages, Facebook, X, Slack or anywhere else. Pin links are on every watch page. The sitemap, structured data, robots.txt and llms.txt rebuild automatically. After launch, add the site to Google Search Console and Bing Webmaster Tools and submit `https://deskdives.com/sitemap.xml`.
+
+## If a build fails
+
+The live site stays exactly as it was. In Amplify, open the failed build and read the last lines of the log. It says what to fix, for example:
+
+```
+BUILD STOPPED: watches/citizen-ny0040/watch.json has a typo on line 12: Expecting ',' delimiter.
+```
+
+That almost always means a missing comma or quote on or just above that line.

@@ -1,0 +1,56 @@
+{
+  "order": 1,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "model": "SPB077",
+  "ref": "SPB077J1",
+  "nickname": "The 1968 diver, again",
+  "line": "Built for a solo crossing of the Pacific. Currently crossing the parking lot.",
+  "key_numbers": [
+    [
+      "44.0",
+      "Case mm"
+    ],
+    [
+      "12.7",
+      "Thick mm"
+    ],
+    [
+      "51.0",
+      "Lug to lug"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "50",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "6R15, automatic",
+    "Case": "44.0 mm steel, hard coated",
+    "Thickness": "12.7 mm",
+    "Lug to lug": "51.0 mm",
+    "Crystal": "Sapphire",
+    "Lume": "LumiBrite",
+    "Water resistance": "200 m",
+    "Power reserve": "About 50 hours"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "captions": {},
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "type": "Diver's 200 m"
+}

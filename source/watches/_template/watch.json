@@ -1,0 +1,49 @@
+{
+  "order": 99,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "model": "Model name",
+  "ref": "TBD",
+  "nickname": "A short nickname",
+  "line": "One dry line about it.",
+  "key_numbers": [
+    [
+      "44.0",
+      "Case mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ]
+  ],
+  "specs": {
+    "Caliber": "TBD",
+    "Case": "TBD",
+    "Crystal": "TBD",
+    "Water resistance": "TBD"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [
+    "First paragraph.",
+    "Second paragraph."
+  ],
+  "likes": [
+    "One thing"
+  ],
+  "annoyances": [
+    "One thing"
+  ],
+  "verdict": "Yes.",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "captions": {
+    "dial.jpg": "Dial macro"
+  },
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "_how_to": "Copy this whole folder, rename the copy (lowercase, dashes, e.g. citizen-ny0040), edit this file, and drop photos in the folder. main.jpg is the big photo. Any other .jpg becomes a gallery plate, in name order. A file starting with figure (figure.jpg) shows as a watercolor. order sets the number (No. 01, No. 02...). wrist_rank 1 shows as P1. Set paid to a number like 1150 to show The math. Lists in square brackets take one quoted line per item. Set draft to true to hide the watch while you work on it. Folders starting with an underscore are never published."
+}

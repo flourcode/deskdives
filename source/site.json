@@ -1,0 +1,26 @@
+{
+  "_how_to": "Site-wide settings. Edit the text between the quotes. Leave youtube empty until your channel link is ready; YouTube links stay hidden until then.",
+  "name": "Desk Dives",
+  "domain": "https://deskdives.com",
+  "tagline": "Built for adventure. Mostly worn to lunch.",
+  "kicker": "Dive watches:",
+  "eyebrow": "Field reports from 300 metres",
+  "dateline": "Mostly Seiko, some Citizen, a few old ones",
+  "depth_note": "Current depth: desk level",
+  "rated": "200 m",
+  "deepest_dive": "the office pool",
+  "author": "Mark",
+  "email": "",
+  "youtube": "",
+  "youtube_label": "YouTube",
+  "featured": "seiko-spb077",
+  "on_wrist": "seiko-spb077",
+  "on_wrist_note": "",
+  "subscribe_title": "New videos on YouTube",
+  "subscribe_text": "One watch, one desk, about ten minutes. No unboxing music.",
+  "benchmark": {
+    "name": "Rolex Submariner Date, list",
+    "price": 10250,
+    "note": "Submariner Date 126610LN US list price after the January 2026 increase. Checked October 2026."
+  }
+}

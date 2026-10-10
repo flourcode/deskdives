@@ -1,0 +1,13 @@
+{
+  "_how_to": "One entry per YouTube video, newest first. 'id' is the part after watch?v= or youtu.be/ in the link. 'watches' lists the folder names of watches the video features, so it shows on those watch pages too.",
+  "videos": [
+    {
+      "id": "",
+      "title": "Example: SPB077, one year later",
+      "date": "2026-10",
+      "length": "12:40",
+      "summary": "Delete this example or replace it with a real video. Entries with an empty id are hidden.",
+      "watches": ["seiko-spb077"]
+    }
+  ]
+}
