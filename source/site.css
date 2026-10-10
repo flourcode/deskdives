@@ -312,3 +312,8 @@ table.specs td.hot { color: var(--lume); }
   .journal .r { display: none; }
   .share button, .share a { padding-block: 10px 1px; }
 }
+
+/* YouTube Shorts: vertical frame */
+.vid.short .thumb { aspect-ratio: 9 / 16; max-width: 300px; }
+.vid.short h3, .vid.short p { max-width: 300px; }
+.vid .thumb .tag { position: absolute; left: 10px; top: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--abyss, #06121c); background: var(--lume); padding: 2px 6px; }

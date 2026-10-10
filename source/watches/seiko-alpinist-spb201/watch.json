@@ -1,0 +1,59 @@
+{
+  "order": 4,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Field watch, 200 m",
+  "model": "Alpinist SPB201",
+  "ref": "SPB201J1",
+  "nickname": "The Alpinist, European edition",
+  "line": "Internal compass bezel, built for finding your way off a mountain. Used for finding Conference Room B.",
+  "key_numbers": [
+    [
+      "39.5",
+      "Case mm"
+    ],
+    [
+      "13.2",
+      "Thick mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "70",
+      "Power res. h"
+    ],
+    [
+      "2,021",
+      "Made"
+    ]
+  ],
+  "specs": {
+    "Caliber": "6R35, automatic",
+    "Case": "39.5 mm steel",
+    "Thickness": "13.2 mm",
+    "Dial": "Grey, internal rotating compass",
+    "Crystal": "Sapphire",
+    "Water resistance": "200 m",
+    "Power reserve": "About 70 hours",
+    "Strap": "Brown calfskin",
+    "Edition": "2,021 numbered pieces, Europe only, 2021"
+  },
+  "captions": {
+    "main.jpg": "On the original calfskin"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

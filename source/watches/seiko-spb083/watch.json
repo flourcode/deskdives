@@ -1,0 +1,56 @@
+{
+  "order": 6,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 200 m",
+  "model": "SPB083",
+  "ref": "SPB083J1",
+  "nickname": "The Great Blue Hole",
+  "line": "Named for a sinkhole off Belize about 125 meters deep. Rated to 200. Deepest descent so far: a standup that ran long.",
+  "key_numbers": [
+    [
+      "44.0",
+      "Case mm"
+    ],
+    [
+      "13.1",
+      "Thick mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "50",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Also sold as": "SBDC065 (Japan)",
+    "Caliber": "6R15, automatic, 23 jewels",
+    "Case": "44.0 mm steel, super-hard coating",
+    "Thickness": "13.1 mm",
+    "Dial": "Blue gradient",
+    "Bezel": "Black, one-way",
+    "Crown": "Screw-down, at 4 o'clock",
+    "Crystal": "Sapphire, anti-reflective inside",
+    "Water resistance": "200 m",
+    "Power reserve": "About 50 hours"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "captions": {
+    "main.jpg": "Still from the Short"
+  },
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

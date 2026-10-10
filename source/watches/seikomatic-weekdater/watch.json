@@ -1,0 +1,47 @@
+{
+  "order": 5,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Seikomatic",
+  "type": "Dress watch",
+  "model": "Weekdater",
+  "ref": "6218-8971",
+  "nickname": "The one that never pretended",
+  "line": "Mid-1960s. Thirty-five jewels, day and date, no bezel, no claims. The only watch here nobody has ever asked how deep it goes.",
+  "key_numbers": [
+    [
+      "35",
+      "Jewels"
+    ],
+    [
+      "1960s",
+      "Made"
+    ],
+    [
+      "0",
+      "Dives"
+    ]
+  ],
+  "specs": {
+    "Caliber": "6218, automatic, 35 jewels",
+    "Shock protection": "Diashock",
+    "Complications": "Day and date",
+    "Dial": "Silver sunburst",
+    "Water resistance": "Not rated. Keep it dry."
+  },
+  "captions": {
+    "main.jpg": "On the wrist, a Sunday"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

@@ -1,18 +1,43 @@
 {
-  "order": 8,
+  "order": 3,
   "draft": false,
   "brand": "Seiko",
   "collection": "Prospex",
-  "model": "Willard",
-  "ref": "TBD",
-  "nickname": "The Apocalypse Now one",
-  "line": "Placeholder. Add the reference and your notes.",
-  "key_numbers": [],
+  "type": "Diver's 200 m",
+  "model": "SPB151",
+  "ref": "SPB151J1",
+  "nickname": "The Willard",
+  "line": "Named for a captain who went up a river into the heart of darkness. Mine goes up the elevator to the fourth floor.",
+  "key_numbers": [
+    [
+      "42.7",
+      "Case mm"
+    ],
+    [
+      "13.2",
+      "Thick mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "70",
+      "Power res. h"
+    ]
+  ],
   "specs": {
-    "Caliber": "TBD",
-    "Case": "TBD",
-    "Crystal": "TBD",
-    "Water resistance": "TBD"
+    "Caliber": "6R35, automatic",
+    "Case": "42.7 mm steel, crown at 4",
+    "Thickness": "13.2 mm",
+    "Dial": "Black",
+    "Crystal": "Sapphire",
+    "Water resistance": "200 m",
+    "Power reserve": "About 70 hours"
+  },
+  "captions": {
+    "main.jpg": "On the bracelet",
+    "2-with-the-62mas.jpg": "With the SLA017, for scale"
   },
   "acquired": "TBD",
   "wrist_rank": "",
@@ -24,7 +49,6 @@
   "verdict_note": "",
   "paid": null,
   "math_quip": "",
-  "captions": {},
   "affiliate_url": "",
   "affiliate_label": ""
 }

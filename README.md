@@ -1,6 +1,6 @@
 # deskdives.com
 
-Dive watches. Built for adventure. Mostly worn to lunch.
+Nobody in the meeting knows it's rated to 300 meters. You do.
 
 You run this site entirely from GitHub. You don't need to install anything or edit code. Every time you commit a change, AWS Amplify rebuilds the whole site in about two minutes: every page, image size, share preview, sitemap and search data.
 
@@ -96,16 +96,21 @@ Open `source/videos.json`, click the pencil, and add an entry at the top of the 
 
 ```json
 {
-  "id": "abc123XYZ",
-  "title": "SPB077, one year later",
-  "date": "2026-11",
-  "length": "12:40",
+  "url": "https://youtube.com/shorts/xPnFMMdfSJY",
+  "title": "Seiko Great Blue Hole on the wrist",
+  "date": "2026-10-10",
+  "length": "0:06",
   "summary": "One line about it.",
-  "watches": ["seiko-spb077"]
+  "watches": ["seiko-spb083"]
 },
 ```
 
-`id` is the part of the YouTube link after `watch?v=` or `youtu.be/`. `watches` lists the folder names of the watches in the video, so it appears on those watch pages too. Videos load from YouTube only when someone presses play, which keeps the site fast. Entries with an empty `id` are hidden.
+- `url` is the video's link, copied straight from YouTube's Share button. Regular videos, youtu.be links and Shorts all work.
+- Shorts show in a tall 9:16 frame with a SHORT tag.
+- `watches` lists the folder names of the watches in the video, so it appears on those watch pages too.
+- Optional cover image: upload a JPG named after the video id (the 11 characters after `/shorts/` or `v=`) to `source/videos`, for example `source/videos/xPnFMMdfSJY.jpg`. Without one, YouTube's thumbnail is used.
+
+Videos load from YouTube only when someone presses play, which keeps the site fast.
 
 ## Write a journal entry
 

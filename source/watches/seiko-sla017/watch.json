@@ -1,0 +1,59 @@
+{
+  "order": 2,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 200 m",
+  "model": "SLA017",
+  "ref": "SLA017J1",
+  "nickname": "The 62MAS, re-created",
+  "line": "A re-creation of Seiko's first diver, from 1965. Box sapphire, 2,000 made. Deepest descent so far: the parking garage, level P3.",
+  "key_numbers": [
+    [
+      "39.9",
+      "Case mm"
+    ],
+    [
+      "14.1",
+      "Thick mm"
+    ],
+    [
+      "200",
+      "Water res. m"
+    ],
+    [
+      "50",
+      "Power res. h"
+    ],
+    [
+      "2,000",
+      "Made"
+    ]
+  ],
+  "specs": {
+    "Caliber": "8L35, automatic, 26 jewels",
+    "Case": "39.9 mm steel",
+    "Thickness": "14.1 mm",
+    "Lug width": "19 mm",
+    "Crystal": "Box sapphire, anti-reflective",
+    "Water resistance": "200 m",
+    "Power reserve": "About 50 hours",
+    "Edition": "2,000 numbered pieces, 2017"
+  },
+  "captions": {
+    "main.jpg": "Lume, charged",
+    "2-with-the-willard.jpg": "With the Willard, for scale"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

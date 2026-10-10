@@ -1,6 +1,6 @@
 ---
 title: The desk diver
-lead: I own about ten watches built to go 200 metres down. Combined, they have been about four feet underwater, most of that in a hotel pool.
+lead: I own about ten watches built to go hundreds of meters down. Combined, they have been about four feet underwater, most of that in a hotel pool.
 watches: 10, give or take one in the mail
 deepest_dive: The office pool
 most_worn: TBD

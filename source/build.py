@@ -411,12 +411,36 @@ def watch_card(w):
         </a>"""
 
 
+YT_ID = re.compile(r"(?:youtu\.be/|youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/|live/))([A-Za-z0-9_-]{11})")
+
+
+def video_id(v):
+    """Accepts a bare id or any YouTube link (watch, youtu.be, shorts)."""
+    raw = (v.get("id") or v.get("url") or "").strip()
+    m = YT_ID.search(raw)
+    if m:
+        if "/shorts/" in raw and "short" not in v:
+            v["short"] = True
+        return m.group(1)
+    if re.fullmatch(r"[A-Za-z0-9_-]{11}", raw):
+        return raw
+    if raw:
+        fail(f"videos.json: '{raw}' doesn't look like a YouTube link or video id (video '{v.get('title','')}').")
+    return ""
+
+
 def video_card(v, big=False):
-    thumb = f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
+    short = bool(v.get("short"))
+    big = big and not short
+    thumb = v.get("poster") or f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
     w_titles = ", ".join(e(W_BY[s]["title"]) for s in v.get("watches", []) if s in W_BY)
-    return f"""<div class="vid{' big' if big else ''}">
-          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}" alt="" loading="lazy" decoding="async"><span class="play"></span>{f'<span class="tc">{e(v.get("length",""))}</span>' if v.get('length') else ''}</button>
-          <h3><a href="https://www.youtube.com/watch?v={e(v['id'])}" target="_blank" rel="noopener">{e(v['title'])}</a></h3>
+    cls = "vid" + (" big" if big else "") + (" short" if short else "")
+    link = f"https://www.youtube.com/shorts/{e(v['id'])}" if short else f"https://www.youtube.com/watch?v={e(v['id'])}"
+    tc = f'<span class="tc">{e(v.get("length",""))}</span>' if v.get("length") else ""
+    tag = '<span class="tag">Short</span>' if short else ""
+    return f"""<div class="{cls}">
+          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}" alt="" loading="lazy" decoding="async"><span class="play"></span>{tag}{tc}</button>
+          <h3><a href="{link}" target="_blank" rel="noopener">{e(v['title'])}</a></h3>
           <p>{e(v.get('summary',''))}{(' · Features ' + w_titles) if w_titles else ''}</p>
         </div>"""
 
@@ -474,7 +498,7 @@ def build_home():
       <div class="masthead">
         <p class="eyebrow">{e(S.get('eyebrow',''))}</p>
         <h1 class="glow">{e(NAME)}</h1>
-        <p class="standfirst"><i>{e(S.get('kicker',''))}</i> {e(TAGLINE)}</p>
+        <p class="standfirst">{('<i>' + e(S['kicker']) + '</i> ') if S.get('kicker') else ''}{e(TAGLINE)}</p>
         <div class="depthline"><span>Rated <b>{e(S.get('rated',''))}</b></span><span>Deepest dive so far <b>{e(S.get('deepest_dive',''))}</b></span></div>
       </div>
       {hero_plate}
@@ -498,7 +522,7 @@ def build_home():
   </div>"""
     items = {"@type": "ItemList", "name": "The collection", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{w['url']}", "name": w["title"]} for i, w in enumerate(WATCHES)]}
-    write("/", page("/", f"{NAME} · Dive Watches Built for Adventure, Mostly Worn to Lunch",
+    write("/", page("/", f"{NAME} · Dive Watches, Mostly Worn to Meetings",
                     f"{NAME}: a collection of Seiko, Citizen and vintage dive watches with specs, photos, YouTube videos and honest opinions. {TAGLINE}",
                     body, schema=ld(WEBSITE, PERSON, items), og_alt=f"{NAME} dive watch collection"))
 
@@ -619,8 +643,8 @@ def build_videos():
     <div class="video-grid">{grid}</div>
   </div>"""
     nodes = [{"@type": "VideoObject", "name": v["title"], "description": v.get("summary") or v["title"],
-              "thumbnailUrl": f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg", "uploadDate": v.get("date") or TODAY,
-              "embedUrl": f"https://www.youtube-nocookie.com/embed/{v['id']}", "contentUrl": f"https://www.youtube.com/watch?v={v['id']}"} for v in VIDEOS]
+              "thumbnailUrl": (SITE + v["poster"]) if v.get("poster") else f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg", "uploadDate": v.get("date") or TODAY,
+              "embedUrl": f"https://www.youtube-nocookie.com/embed/{v['id']}", "contentUrl": (f"https://www.youtube.com/shorts/{v['id']}" if v.get("short") else f"https://www.youtube.com/watch?v={v['id']}")} for v in VIDEOS]
     write("/videos/", page("/videos/", f"Videos · Dive Watches on YouTube · {NAME}", f"{NAME} videos: wrist shots, lume tests and honest notes on Seiko and Citizen dive watches.",
                            body, nav="videos", schema=ld(*nodes, crumbs([("Home", "/"), ("Videos", "/videos/")]))))
 
@@ -783,7 +807,17 @@ if __name__ == "__main__":
     for w in WATCHES:
         process_watch_images(w)
     VD = load_json(os.path.join(ROOT, "videos.json"))
-    VIDEOS = [v for v in VD.get("videos", []) if (v.get("id") or "").strip()]
+    VIDEOS = []
+    for v in VD.get("videos", []):
+        vid = video_id(v)
+        if not vid:
+            continue
+        v["id"] = vid
+        pp = next((p for p in glob.glob(os.path.join(ROOT, "videos", vid + ".*")) if p.lower().endswith(IMG_EXT)), None)
+        if pp:  # optional local poster: source/videos/<id>.jpg
+            im = open_img(pp); im.thumbnail((900, 1600), Image.LANCZOS)
+            v["poster"] = save(im, f"images/videos/{vid}.jpg")
+        VIDEOS.append(v)
     for v in VIDEOS:
         for s in v.get("watches", []):
             if s not in W_BY:
@@ -794,4 +828,4 @@ if __name__ == "__main__":
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
     build_videos(); build_journal(); build_about(); build_404(); build_static()
-    print(f"Built {len(WATCHES)} watches, {len(VIDEOS)} videos, {len(POSTS)} journal entries into {OUT}")
+    print(f"Built {len(WATCHES)} watches, {len(VIDEOS)} video(s), {len(POSTS)} journal entr{"y" if len(POSTS) == 1 else "ies"} into {OUT}")
