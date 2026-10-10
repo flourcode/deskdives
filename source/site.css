@@ -317,3 +317,13 @@ table.specs td.hot { color: var(--lume); }
 .vid.short .thumb { aspect-ratio: 9 / 16; max-width: 300px; }
 .vid.short h3, .vid.short p { max-width: 300px; }
 .vid .thumb .tag { position: absolute; left: 10px; top: 10px; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--abyss, #06121c); background: var(--lume); padding: 2px 6px; }
+
+/* Home modules without the journal column */
+.modules.two .col-b { grid-column: 1 / span 6; border-left: 0; padding-left: 0; }
+.modules.two .col-c { grid-column: 7 / span 6; }
+.take .body .verdict { margin-top: 36px; }
+.take .body .verdict p { font-size: 20px; }
+@media (max-width: 900px) {
+  .modules.two .col-b, .modules.two .col-c { grid-column: 1 / -1; border-left: 0; padding-left: 0; }
+}
+.take .body .verdict:first-child { margin-top: 0; border-top: 0; padding-top: 0; }

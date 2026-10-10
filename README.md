@@ -53,6 +53,21 @@ Open the watch's folder on GitHub (for example `source/watches/seiko-turtle`), c
 
 To replace a photo, upload a new file with the same name.
 
+## When a watch shows on the site
+
+A watch appears once its folder has **at least one photo** and its watch.json has a real `ref` (not "TBD"). Until then it stays hidden, and the build log lists what each hidden watch still needs, for example `Hidden for now: watches/seiko-spb077 needs a photo`. Set `"draft": true` to hide a finished watch on purpose.
+
+The watch count in the header, the collection and the About page is counted automatically from the watches that are showing. Numbers (No. 01, No. 02…) follow `order`.
+
+Empty fields never show. The writing on each watch page has four parts, and each appears only once you fill it in:
+
+- **Why I bought it**: `take`, one paragraph per line in quotes
+- **What I like**: `likes`
+- **What annoys me**: `annoyances`
+- **Would I buy it again?**: `verdict` and `verdict_note`
+
+Specs left as "TBD" or empty are skipped, and so is `acquired` until you fill it in.
+
 ## Add a watch
 
 1. On GitHub, open `source/watches/_template/watch.json` and copy everything in it.
@@ -76,10 +91,10 @@ To replace a photo, upload a new file with the same name.
 "acquired": "2019, used",
 "wrist_rank": 1,             1 shows as P1 · WRIST TIME
 "deepest_dive": "The office pool",
-"take": ["First paragraph.", "Second paragraph."],
+"take": ["First paragraph.", "Second paragraph."],   Why I bought it
 "likes": ["One thing per line"],
 "annoyances": ["One thing per line"],
-"verdict": "Yes.",           Buy it again?
+"verdict": "Yes.",           Would I buy it again?
 "verdict_note": "But on the Jubilee this time.",
 "paid": 180,                 a number turns on The math. null hides it
 "math_quip": "Enough for a dive trip to Belize.",
@@ -121,9 +136,17 @@ Videos load from YouTube only when someone presses play, which keeps the site fa
 
 ## Other settings in site.json
 
+- `tagline` is the big line on the home page. `description` is what Google and link previews show for the home page. `dateline` is the small line under the masthead, after the watch count.
 - `featured` is the watch shown large on the home page, and its photo becomes the site's default share image. `on_wrist` is the "On the wrist this week" watch. Both use folder names.
 - `benchmark` is the Rolex price used in The math. Update `price` and `note` when Rolex changes its prices.
-- `tagline`, `eyebrow`, `rated`, `deepest_dive`, `dateline` and `depth_note` are the small lines around the masthead.
+
+## The About page
+
+Edit `source/about.md`. Write `{count}` anywhere and it becomes the number of watches on the site in words ("five"), or `{number}` for digits. `most_worn` and `grail` show in the logbook only when filled in.
+
+## The journal
+
+The Journal link and home page box stay hidden until you publish your first entry.
 
 ## Google Analytics
 

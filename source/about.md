@@ -1,9 +1,7 @@
 ---
 title: The desk diver
-lead: I own about ten watches built to go hundreds of meters down. Combined, they have been about four feet underwater, most of that in a hotel pool.
-watches: 10, give or take one in the mail
-deepest_dive: The office pool
-most_worn: TBD
+lead: I own {count} watches, most of them built to go hundreds of meters down. Combined, they have been about four feet underwater, most of that in a hotel pool.
+most_worn: 
 grail: Submariner. Still in the window.
 ---
 

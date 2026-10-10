@@ -107,7 +107,8 @@ def markdown(body, img_map=None):
 def plain(md):
     t = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", md)
     t = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", t)
-    t = re.sub(r"[*#>`_-]", "", t)
+    t = re.sub(r"(?m)^\s*(?:#+|>|-)\s+", "", t)  # headings, quotes, list bullets at line starts
+    t = re.sub(r"[*`]|(?<!\w)_|_(?!\w)", "", t)  # bold/italic/code marks; keeps hyphens and snake_case
     return " ".join(t.split())
 
 
@@ -213,6 +214,10 @@ def load_watches():
         if not main and rest:
             main, rest = rest[0], rest[1:]
         w["main_file"], w["gallery_files"], w["figure_files"] = main, rest, figs
+        missing = [x for x, ok in (("a photo", main), ("a reference", (w.get("ref") or "").strip() not in ("", "TBD"))) if not ok]
+        if missing:
+            print(f"Hidden for now: watches/{slug} needs {' and '.join(missing)} before it shows on the site.")
+            continue
         ws.append(w)
     ws.sort(key=lambda w: (w.get("order", 999), w["slug"]))
     for i, w in enumerate(ws):
@@ -350,11 +355,11 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
       <nav class="primary" aria-label="Primary">
         {link("watches", "/watches/", "Watches")}
         {link("videos", "/videos/", "Videos")}
-        {link("journal", "/journal/", "Journal")}
+        {link("journal", "/journal/", "Journal") if POSTS else ""}
         {link("about", "/about/", "About")}
       </nav>
     </div>
-    <div class="dateline"><span>{len(WATCHES)} watches · {e(S.get('dateline',''))}</span><span>{e(S.get('depth_note',''))}</span></div>
+    <div class="dateline"><span>{len(WATCHES)} watch{"" if len(WATCHES) == 1 else "es"}{(" · " + e(S["dateline"])) if S.get("dateline") else ""}</span></div>
   </header>
 </div>
 <main id="main" class="clip">
@@ -463,13 +468,6 @@ def build_home():
     hero_plate = ""
     if f:
         hero_plate = f'<a class="hero-link" href="{f["url"]}">{plate(f, eager=True, sizes="(max-width: 900px) 92vw, 46vw")}</a>'
-    survey = [
-        ("/watches/", "Watches", f"{len(WATCHES)} of them, mostly Seiko. Specs, opinions, and whether I'd buy each one again."),
-        ("/videos/", "Videos", "Restarting the channel. Wrist shots, lume tests, and the occasional bad decision."),
-        ("/journal/", "Journal", "Occasional writing. Straps, old catalogs, and why I keep buying the same watch."),
-        ("/watches/", "The math", "Sub money versus Seiko money, worked out on every watch page."),
-    ]
-    survey_html = "".join(f'<a href="{u}"><span class="n">{i + 1}</span><h2>{t}</h2><p>{d}</p></a>' for i, (u, t, d) in enumerate(survey))
     cards = "\n".join(watch_card(w) for w in WATCHES[:8])
     # modules
     if POSTS:
@@ -478,9 +476,14 @@ def build_home():
     else:
         journal_mod = '<p class="empty-note">The first entry is on its way.</p>'
     if VIDEOS:
-        video_mod = "\n".join(video_card(v) for v in VIDEOS[:2])
+        video_mod = "\n".join(video_card(v) for v in VIDEOS[:1])
     else:
         video_mod = '<div class="vid"><div class="thumb static"><span class="play"></span></div><p class="empty-note">The first new video is coming soon.</p></div>'
+    journal_col = ""
+    if POSTS:
+        journal_col = f"""<div class="col-a"><span class="label">Only on {e(NAME)}</span><h2 class="mod-head">From the journal</h2>
+        <p class="mod-sub">Occasional writing, mostly about watches I already own.</p>{journal_mod}
+        <a class="more-link" href="/journal/">All entries →</a></div>"""
     ow = W_BY.get(S.get("on_wrist"))
     spot = ""
     if ow:
@@ -496,25 +499,20 @@ def build_home():
     body = f"""  <div class="wrap">
     <section class="grid hero">
       <div class="masthead">
-        <p class="eyebrow">{e(S.get('eyebrow',''))}</p>
         <h1 class="glow">{e(NAME)}</h1>
         <p class="standfirst">{('<i>' + e(S['kicker']) + '</i> ') if S.get('kicker') else ''}{e(TAGLINE)}</p>
-        <div class="depthline"><span>Rated <b>{e(S.get('rated',''))}</b></span><span>Deepest dive so far <b>{e(S.get('deepest_dive',''))}</b></span></div>
       </div>
       {hero_plate}
     </section>
-    <nav class="survey" aria-label="Sections">{survey_html}</nav>
     <section class="sect" aria-labelledby="col-h">
-      <div class="sect-head"><h2 id="col-h" class="label">The collection · {len(WATCHES)}</h2><a href="/watches/">All watches →</a></div>
+      <div class="sect-head"><h2 id="col-h" class="label">The collection · {len(WATCHES):02d}</h2><a href="/watches/">All watches →</a></div>
       <div class="collection">
 {cards}
       </div>
     </section>
-    <section class="grid modules" aria-label="More">
-      <div class="col-a"><span class="label">Only on {e(NAME)}</span><h2 class="mod-head">From the journal</h2>
-        <p class="mod-sub">Occasional writing, mostly about watches I already own.</p>{journal_mod}
-        <a class="more-link" href="/journal/">All entries →</a></div>
-      <div class="col-b"><span class="label">On YouTube</span><h2 class="mod-head">Latest videos</h2>
+    <section class="grid modules{'' if POSTS else ' two'}" aria-label="More">
+      {journal_col}
+      <div class="col-b"><span class="label">On YouTube</span><h2 class="mod-head">{'Latest video' if len(VIDEOS) <= 1 else 'Latest videos'}</h2>
         <p class="mod-sub">Wrist shots, lume tests and honest counts.</p>{video_mod}
         <a class="more-link" href="/videos/">All videos →</a></div>
       <div class="col-c">{spot}{sub}</div>
@@ -522,8 +520,8 @@ def build_home():
   </div>"""
     items = {"@type": "ItemList", "name": "The collection", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{w['url']}", "name": w["title"]} for i, w in enumerate(WATCHES)]}
-    write("/", page("/", f"{NAME} · Dive Watches, Mostly Worn to Meetings",
-                    f"{NAME}: a collection of Seiko, Citizen and vintage dive watches with specs, photos, YouTube videos and honest opinions. {TAGLINE}",
+    write("/", page("/", f"{NAME} · Seiko Dive Watches, Specs and Honest Notes",
+                    S.get("description") or TAGLINE,
                     body, schema=ld(WEBSITE, PERSON, items), og_alt=f"{NAME} dive watch collection"))
 
 
@@ -531,7 +529,7 @@ def build_watches_index():
     cards = "\n".join(watch_card(w) for w in WATCHES)
     body = f"""  <div class="wrap">
     <section class="page-head"><span class="label">The collection</span><h1 class="glow">Watches</h1>
-      <p class="standfirst">{len(WATCHES)} watches, numbered in the order they arrived. Each has specs, photos, videos, and an answer to whether I'd buy it again.</p></section>
+      <p class="standfirst">{len(WATCHES)} watches, numbered in the order they arrived. Specs, photos and honest notes on each.</p></section>
     <div class="collection">
 {cards}
     </div>
@@ -539,7 +537,7 @@ def build_watches_index():
     items = {"@type": "ItemList", "name": "Watches", "itemListElement": [
         {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{w['url']}", "name": w["title"]} for i, w in enumerate(WATCHES)]}
     write("/watches/", page("/watches/", f"Watches · The Collection · {NAME}",
-                            f"The {NAME} collection: {len(WATCHES)} dive watches, mostly Seiko Prospex, with specs, photos and honest notes.",
+                            f"The {NAME} collection: {len(WATCHES)} watches, mostly Seiko Prospex divers, with specs, photos and honest notes.",
                             body, nav="watches", schema=ld({"@type": "CollectionPage", "url": f"{SITE}/watches/", "name": "Watches", "mainEntity": items},
                                                            crumbs([("Home", "/"), ("Watches", "/watches/")]))))
 
@@ -548,7 +546,10 @@ def build_watch(w, i):
     prev, nxt = (WATCHES[i - 1] if i else None), (WATCHES[i + 1] if i + 1 < len(WATCHES) else None)
     kn = "".join(f'<div><b>{e(v)}</b><span class="label">{e(l)}</span></div>' for v, l in w["key_numbers"])
     timing = f'<section class="timing" style="--n:{len(w["key_numbers"])}" aria-label="Key numbers">{kn}</section>' if w["key_numbers"] else ""
-    rows = [("Ref", w.get("ref") or "TBD")] + list(w["specs"].items()) + [("Acquired", w.get("acquired") or "TBD")]
+    blank = lambda v: v is None or str(v).strip() in ("", "TBD")
+    rows = [("Ref", w["ref"])] + [(k, v) for k, v in w["specs"].items() if not blank(v)]
+    if not blank(w.get("acquired")):
+        rows.append(("Acquired", w["acquired"]))
     if w.get("deepest_dive"):
         rows.append(("Deepest dive", w["deepest_dive"]))
     if rank(w):
@@ -559,9 +560,9 @@ def build_watch(w, i):
     verdict = ""
     if w.get("verdict"):
         vnote = "<p>" + e(w["verdict_note"]) + "</p>" if w.get("verdict_note") else ""
-        verdict = f'<div class="verdict"><span class="label">Buy it again?</span><b class="glow">{e(w["verdict"])}</b>{vnote}</div>'
+        verdict = f'<div class="verdict"><h3 class="label">Would I buy it again?</h3><b class="glow">{e(w["verdict"])}</b>{vnote}</div>'
     share = share_links(SITE + w["url"], f"{w['title']} · {NAME}", SITE + (w.get("img_plain") or IMG["og-site"]), "watch", w["slug"])
-    take = "".join(f"<p>{inline(p)}</p>" for p in w["take"]) or '<p class="empty-note">Notes to come.</p>'
+    take = "".join(f"<p>{inline(p)}</p>" for p in w["take"])
     lists = ""
     if w["likes"] or w["annoyances"]:
         li = lambda xs: "".join(f"<li>{inline(x)}</li>" for x in xs)
@@ -576,6 +577,15 @@ def build_watch(w, i):
           <dl><div><dt>{e(b.get('name',''))}</dt><dd>{money(b['price'])}</dd></div><div><dt>What I paid</dt><dd>{money(w['paid'])}</dd></div>
           <div class="res"><dt>Left over</dt><dd>{money(left)}</dd></div></dl>
           {f"<p>{e(w['math_quip'])}</p>" if w.get('math_quip') else ''}<small>{e(b.get('note',''))}</small></div></aside>"""
+    take_sect = ""
+    if take or lists or verdict or math:
+        head = "Why I bought it" if take else ("Would I buy it again?" if verdict and not lists else "Notes")
+        verdict_html = verdict if (take or lists) else verdict.replace('<h3 class="label">Would I buy it again?</h3>', "")
+        take_sect = f"""<section class="grid take">
+      <div class="col-l"><h2>{head}</h2></div>
+      <div class="col-r body">{take}{lists}{verdict_html}</div>
+      {math}
+    </section>"""
     figs = "".join(f"""<section class="grid fig"><div class="txt"><span class="label">Fig.</span><p><i>From the sketchbook:</i> {e(f['caption'])}</p></div>
       <figure class="art"><img src="{f['url']}" width="{f['w']}" height="{f['h']}" alt="Watercolor of the {e(w['title'])}" loading="lazy" decoding="async"></figure></section>""" for f in w["figures"])
     gal = "".join(f"""<figure class="plate"><a class="win" href="{g['full']}"><img src="{g['thumb']}" width="{g['w']}" height="{g['h']}" alt="{e(w['title'])}: {e(g['caption'])}" loading="lazy" decoding="async"></a>
@@ -603,15 +613,10 @@ def build_watch(w, i):
       {plate(w, eager=True, sizes="(max-width: 900px) 92vw, 55vw")}
       <aside class="w-side">
         <table class="specs"><caption class="label">Specifications</caption>{spec_rows}</table>
-        {verdict}
         {share}
       </aside>
     </section>
-    <section class="grid take">
-      <div class="col-l"><h2>My take</h2></div>
-      <div class="col-r body">{take}{lists}</div>
-      {math}
-    </section>
+    {take_sect}
     {figs}
     {more}
     {find}
@@ -620,16 +625,19 @@ def build_watch(w, i):
     desc = (w["take"][0] if w["take"] else w.get("line", "")) or f"The {w['title']} in the {NAME} collection."
     desc = f"{w['title']}{(' (' + w['ref'] + ')') if w.get('ref') not in (None, '', 'TBD') else ''}: {plain(desc)}"[:300]
     product = {"@type": "Product", "@id": f"{SITE}{w['url']}#watch", "name": w["title"], "brand": {"@type": "Brand", "name": w.get("brand", "")},
-               "category": "Dive watch", "url": f"{SITE}{w['url']}"}
+               "category": "Dive watch" if "diver" in (w.get("type") or "").lower() else "Wristwatch", "url": f"{SITE}{w['url']}"}
     if w.get("ref") not in (None, "", "TBD"):
         product["mpn"] = w["ref"]; product["model"] = w["ref"]
     if w.get("img"):
         product["image"] = SITE + w["img_plain"]
     if w["take"]:
         product["review"] = {"@type": "Review", "author": {"@id": f"{SITE}/#author"}, "reviewBody": plain(" ".join(w["take"]))}
+        schema = ld(product, crumbs([("Home", "/"), ("Watches", "/watches/"), (w["title"], w["url"])]))
+    else:  # product markup without a review gets flagged by Google, so only breadcrumbs until the take is written
+        schema = ld(crumbs([("Home", "/"), ("Watches", "/watches/"), (w["title"], w["url"])]))
     write(w["url"], page(w["url"], f"{w['title']}{(' ' + w['ref']) if w.get('ref') not in (None,'','TBD') else ''} · Specs, Photos and Honest Notes · {NAME}",
                          desc, body, nav="watches", og=w.get("og"), og_alt=f"{w['title']} dive watch", og_type="article",
-                         schema=ld(product, crumbs([("Home", "/"), ("Watches", "/watches/"), (w["title"], w["url"])]))))
+                         schema=schema))
 
 
 def build_videos():
@@ -683,12 +691,19 @@ def build_journal():
 
 def build_about():
     meta, body_md = front_matter(open(os.path.join(ROOT, "about.md"), encoding="utf-8").read())
-    log_rows = [("Watches", meta.get("watches")), ("Deepest dive", meta.get("deepest_dive")), ("Most worn", meta.get("most_worn")), ("Grail", meta.get("grail"))]
+    n = len(WATCHES)
+    words = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty".split()
+    count_word = words[n] if n < len(words) else str(n)
+    for k in ("lead", "title"):
+        if meta.get(k):
+            meta[k] = meta[k].replace("{count}", count_word).replace("{number}", str(n))
+    body_md = body_md.replace("{count}", count_word).replace("{number}", str(n))
+    log_rows = [("Watches", str(n)), ("Most worn", meta.get("most_worn")), ("Grail", meta.get("grail"))]
     if YT:
         log_rows.append(("YouTube", f'<a class="inline" href="{e(YT)}" target="_blank" rel="me noopener">{e(YT.replace("https://www.youtube.com/", ""))}</a>'))
     if EMAIL:
         log_rows.append(("Email", e(EMAIL)))
-    log = "".join(f"<div><dt>{k}</dt><dd>{v if k in ('YouTube',) else e(v)}</dd></div>" for k, v in log_rows if v)
+    log = "".join(f"<div><dt>{k}</dt><dd>{v if k in ('YouTube',) else e(v)}</dd></div>" for k, v in log_rows if v and str(v).strip() not in ("", "TBD"))
     art = ""
     if IMG.get("about-art"):
         u, aw, ah = IMG["about-art"]
@@ -722,7 +737,7 @@ def build_static():
     for n in ("site.css", "site.js", "analytics.js"):
         shutil.copy(os.path.join(ROOT, n), os.path.join(OUT, "assets", n))
     urls = [("/", 1.0, None), ("/watches/", 0.9, None)] + [(w["url"], 0.8, w) for w in WATCHES] + \
-           [("/videos/", 0.6, None), ("/journal/", 0.6, None)] + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
+           [("/videos/", 0.6, None)] + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
     out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
     for u, pr, w in urls:
         imgs = ""
@@ -755,13 +770,14 @@ Allow: /
 
 Sitemap: {SITE}/sitemap.xml
 """)
-    L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko Prospex, some Citizen, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
-         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", f"- [Journal]({SITE}/journal/): occasional writing", f"- [About]({SITE}/about/)", "", "## Watches", ""]
+    L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko Prospex, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
+         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", f"- [About]({SITE}/about/)", "", "## Watches", ""]
     for w in WATCHES:
         bits = [w.get("ref") if w.get("ref") not in (None, "", "TBD") else None, w["specs"].get("Caliber") if w["specs"].get("Caliber") not in (None, "TBD") else None,
                 w["specs"].get("Case") if w["specs"].get("Case") not in (None, "TBD") else None, ("Verdict: " + w["verdict"]) if w.get("verdict") else None]
         L.append(f"- [No. {w['no']} {w['title']}]({SITE}{w['url']})" + (": " + "; ".join(b for b in bits if b) if any(bits) else ""))
     if POSTS:
+        L[L.index(f"- [About]({SITE}/about/)")] = f"- [Journal]({SITE}/journal/): occasional writing\n- [About]({SITE}/about/)"
         L += ["", "## Journal", ""] + [f"- [{p['title']}]({SITE}{p['url']}) ({p['date'].isoformat()})" for p in POSTS]
     if YT:
         L += ["", "## Elsewhere", "", f"- YouTube: {YT}"]
