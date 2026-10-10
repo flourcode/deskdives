@@ -22,7 +22,7 @@
   window.gtag("js", new Date());
   window.gtag("config", GA_MEASUREMENT_ID);
 
-  // Events: video plays on the site, shares, outbound YouTube and affiliate clicks
+  // Events: video plays on the site, shares, wallpaper downloads, outbound YouTube and affiliate clicks
   document.addEventListener("click", function (e) {
     var t = e.target;
     var yt = t.closest && t.closest("[data-yt]");
@@ -36,6 +36,7 @@
     }
     var a = t.closest && t.closest("a[href]");
     if (!a) return;
+    if (a.hasAttribute("download")) { window.gtag("event", "wallpaper_download", { wallpaper: a.getAttribute("data-wall"), device: a.getAttribute("data-device") }); return; }
     if (a.rel && a.rel.indexOf("sponsored") > -1) { window.gtag("event", "affiliate_click", { link_url: a.href, page_path: location.pathname }); return; }
     if (/youtube\.com|youtu\.be/.test(a.href)) window.gtag("event", "youtube_click", { link_url: a.href, page_path: location.pathname });
   });

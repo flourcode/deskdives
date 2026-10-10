@@ -355,6 +355,7 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
       <nav class="primary" aria-label="Primary">
         {link("watches", "/watches/", "Watches")}
         {link("videos", "/videos/", "Videos")}
+        {link("wallpapers", "/wallpapers/", "Wallpapers") if WALLS else ""}
         {link("journal", "/journal/", "Journal") if POSTS else ""}
         {link("about", "/about/", "About")}
       </nav>
@@ -727,6 +728,65 @@ def build_about():
                                     crumbs([("Home", "/"), ("About", "/about/")]))))
 
 
+# ---------- wallpapers ----------
+def load_wallpapers():
+    """source/wallpapers/<name>/ holds the files people download, e.g. iphone.jpg and android.jpg."""
+    out = []
+    for folder in sorted(glob.glob(os.path.join(ROOT, "wallpapers", "*"))):
+        slug = os.path.basename(folder)
+        if not os.path.isdir(folder) or slug.startswith(("_", ".")):
+            continue
+        if not re.fullmatch(r"[a-z0-9-]+", slug):
+            fail(f"Folder name wallpapers/{slug} should be lowercase letters, numbers and dashes only (e.g. shark-watercolor).")
+        files = sorted(f for f in os.listdir(folder) if f.lower().endswith(IMG_EXT))
+        if not files:
+            continue
+        items = []
+        for f in files:
+            low = f.lower()
+            device = "iPhone" if "iphone" in low else "Android" if "android" in low else os.path.splitext(f)[0].replace("-", " ").replace("_", " ").title()
+            items.append({"file": f, "device": device})
+        items.sort(key=lambda x: (x["device"] != "iPhone", x["device"] != "Android", x["device"]))
+        out.append({"slug": slug, "folder": folder, "title": slug.replace("-", " ").capitalize(), "items": items})
+    return out
+
+
+def build_wallpapers():
+    if not WALLS:
+        return
+    cards = []
+    for w in WALLS:
+        btns = []
+        for it in w["items"]:
+            src = os.path.join(w["folder"], it["file"])
+            ext = os.path.splitext(it["file"])[1].lower()
+            rel = f"wallpapers/{w['slug']}/{w['slug']}-{it['device'].lower().replace(' ', '-')}{ext}"
+            dst = os.path.join(OUT, rel); os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)  # the original file, untouched, so it stays sharp on the phone
+            with Image.open(src) as im:
+                it["w"], it["h"] = im.size
+            it["url"] = f"/{rel}?v={fhash(dst)}"
+            dl = f"Desk-Dives-{w['slug']}-{it['device'].replace(' ', '-')}{ext}"
+            btns.append(f'<a class="dl" href="{it["url"]}" download="{e(dl)}" data-wall="{e(w["slug"])}" data-device="{e(it["device"])}">'
+                        f'{e(it["device"])} <span>{it["w"]} × {it["h"]}</span></a>')
+        first = open_img(os.path.join(w["folder"], w["items"][0]["file"]))
+        th = first.copy(); th.thumbnail((640, 1400), Image.LANCZOS)
+        w["thumb"] = save(th, f"images/wallpapers/{w['slug']}-preview.jpg", quality=82)
+        w["og"] = og_card(first, f"images/og/wallpaper-{w['slug']}.jpg")
+        cards.append(f"""<figure class="wall"><div class="plate"><div class="win"><img src="{w['thumb']}" width="{th.size[0]}" height="{th.size[1]}" alt="{e(w['title'])} phone wallpaper by {e(S.get('author',''))}" loading="lazy" decoding="async"></div></div>
+        <figcaption><b>{e(w['title'])}</b><span class="dls">{''.join(btns)}</span></figcaption></figure>""")
+    body = f"""  <div class="wrap">
+    <section class="page-head"><span class="label">Free downloads</span><h1 class="glow">Wallpapers</h1>
+      <p class="standfirst">Phone wallpapers from {e(NAME)}, free to use. Tap the button for your phone.</p>
+      <p class="how">On iPhone: tap, then tap the share icon and choose <b>Save to Photos</b>. On Android: tap and the file saves to Downloads.</p></section>
+    <div class="walls">{''.join(cards)}</div>
+  </div>"""
+    write("/wallpapers/", page("/wallpapers/", f"Free Phone Wallpapers · Dive Watch Watercolors · {NAME}",
+                               f"Free {NAME} phone wallpapers for iPhone and Android: dive watch watercolors by {S.get('author','')}.",
+                               body, nav="wallpapers", og=WALLS[0]["og"], og_alt=f"{NAME} phone wallpaper",
+                               schema=ld(crumbs([("Home", "/"), ("Wallpapers", "/wallpapers/")]))))
+
+
 def build_404():
     body = """  <div class="wrap"><section class="page-head"><span class="label">404</span><h1 class="glow">Too deep</h1>
     <p class="standfirst">That page doesn't exist. The watches are all <a class="inline" href="/watches/">here</a>.</p></section></div>"""
@@ -739,7 +799,7 @@ def build_static():
     for n in ("site.css", "site.js", "analytics.js"):
         shutil.copy(os.path.join(ROOT, n), os.path.join(OUT, "assets", n))
     urls = [("/", 1.0, None), ("/watches/", 0.9, None)] + [(w["url"], 0.8, w) for w in WATCHES] + \
-           [("/videos/", 0.6, None)] + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
+           [("/videos/", 0.6, None)] + ([("/wallpapers/", 0.6, None)] if WALLS else []) + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
     out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
     for u, pr, w in urls:
         imgs = ""
@@ -773,7 +833,7 @@ Allow: /
 Sitemap: {SITE}/sitemap.xml
 """)
     L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko, some Omega and other Swiss and German watches, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
-         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", f"- [About]({SITE}/about/)", "", "## Watches", ""]
+         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", ] + ([f"- [Wallpapers]({SITE}/wallpapers/): free phone wallpapers"] if WALLS else []) + [f"- [About]({SITE}/about/)", "", "## Watches", ""]
     for w in WATCHES:
         bits = [w.get("ref") if w.get("ref") not in (None, "", "TBD") else None, w["specs"].get("Caliber") if w["specs"].get("Caliber") not in (None, "TBD") else None,
                 w["specs"].get("Case") if w["specs"].get("Case") not in (None, "TBD") else None, ("Verdict: " + w["verdict"]) if w.get("verdict") else None]
@@ -841,11 +901,12 @@ if __name__ == "__main__":
             if s not in W_BY:
                 print(f"Note: video '{v['title']}' lists watch '{s}', which has no folder. Ignoring that link.")
     POSTS = load_journal()
+    WALLS = load_wallpapers()
     build_brand_images()
     build_home(); build_watches_index()
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
-    build_videos(); build_journal(); build_about(); build_404(); build_static()
+    build_videos(); build_journal(); build_wallpapers(); build_about(); build_404(); build_static()
     nv, np_ = len(VIDEOS), len(POSTS)
     v_word = "video" if nv == 1 else "videos"
     p_word = "journal entry" if np_ == 1 else "journal entries"

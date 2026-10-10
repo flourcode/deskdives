@@ -127,6 +127,14 @@ Open `source/videos.json`, click the pencil, and add an entry at the top of the 
 
 Videos load from YouTube only when someone presses play, which keeps the site fast.
 
+## Add a wallpaper
+
+1. On your computer, make a folder named for the wallpaper, lowercase with dashes (for example `lume-closeup`), and put the images in it.
+2. On GitHub, open `source/wallpapers`, click **Add file → Upload files**, and drag the whole folder in. Name the images `iphone.jpg` and `android.jpg` and the buttons are labeled iPhone and Android. Suggested sizes: 1290 × 2796 for iPhone, 1440 × 3200 for Android.
+3. Commit. The Wallpapers page and its menu link appear automatically. The files are served exactly as uploaded, so they stay sharp. The folder name becomes the title ("lume-closeup" → "Lume closeup").
+
+Downloads are counted in Google Analytics as `wallpaper_download`.
+
 ## Write a journal entry
 
 1. Open `source/journal/_example-entry.md` and copy it.
