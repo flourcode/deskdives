@@ -132,7 +132,7 @@ Videos load from YouTube only when someone presses play, which keeps the site fa
 
 1. On your computer, make a folder named for the wallpaper, lowercase with dashes (for example `lume-closeup`), and put the images in it.
 2. On GitHub, open `source/wallpapers`, click **Add file → Upload files**, and drag the whole folder in. Name the images `iphone.jpg` and `android.jpg` and the buttons are labeled iPhone and Android. Suggested sizes: 1290 × 2796 for iPhone, 1440 × 3200 for Android.
-3. Commit. The Wallpapers page and its menu link appear automatically. The files are served exactly as uploaded, so they stay sharp. The folder name becomes the title ("lume-closeup" → "Lume closeup").
+3. Commit. The Wallpapers page and its footer link ("Free wallpapers") appear automatically. The files are served exactly as uploaded, so they stay sharp. The folder name becomes the title ("lume-closeup" → "Lume closeup").
 
 Downloads are counted in Google Analytics as `wallpaper_download`.
 
@@ -145,7 +145,7 @@ The guide at deskdives.com/seiko-nicknames lives in `source/guides/seiko-nicknam
 - `[[mine: seiko-turtle]]` adds an "In my collection" card for that watch folder, with its photo, and the watch page links back to the entry.
 - `# Heading` (one #) starts a plain section with no label.
 
-Another file in `source/guides`, for example `seiko-movements.md`, becomes its own page the same way.
+`nav_label: Nicknames` at the top puts the guide in the main menu; `footer_label` sets its footer link. Another file in `source/guides`, for example `seiko-movements.md`, becomes its own page the same way.
 
 ## Write a journal entry
 

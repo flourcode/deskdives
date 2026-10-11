@@ -1,5 +1,6 @@
 ---
 title: A Field Guide to Seiko Nicknames
+nav_label: Nicknames
 footer_label: Seiko nickname guide
 seo_title: Seiko Nicknames Explained: Turtle, Tuna, Willard, Sumo, MM300 and More
 kicker: Turtles, Tunas, Willards and other things that somehow became watch names.

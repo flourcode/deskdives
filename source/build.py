@@ -336,7 +336,8 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
     cur = ' aria-current="page"'
     link = lambda key, href, label: f'<a href="{href}"{cur if nav == key else ""}>{label}</a>'
     yt_foot = f' · <a href="{e(YT)}" target="_blank" rel="me noopener">{e(S.get("youtube_label","YouTube"))}</a>' if YT else ""
-    guide_foot = "".join(f' · <a href="{g["url"]}">{e(g["meta"].get("footer_label") or g["meta"].get("title", ""))}</a>' for g in GUIDES)
+    wall_foot = ' · <a href="/wallpapers/">Free wallpapers</a>' if WALLS else ""
+    guide_foot = wall_foot + "".join(f' · <a href="{g["url"]}">{e(g["meta"].get("footer_label") or g["meta"].get("title", ""))}</a>' for g in GUIDES)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -383,8 +384,8 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
       <a class="wordmark" href="/">{e(NAME.upper())}</a>
       <nav class="primary" aria-label="Primary">
         {link("watches", "/watches/", "Watches")}
+        {"".join(link("guide-" + g["slug"], g["url"], e(g["meta"]["nav_label"])) for g in GUIDES if g["meta"].get("nav_label"))}
         {link("videos", "/videos/", "Videos")}
-        {link("wallpapers", "/wallpapers/", "Wallpapers") if WALLS else ""}
         {link("journal", "/journal/", "Journal") if POSTS else ""}
         {link("about", "/about/", "About")}
       </nav>
@@ -910,7 +911,7 @@ def build_guides():
         art = {"@type": "Article", "headline": title, "description": meta.get("description", ""), "url": f"{SITE}{g['url']}",
                "author": {"@id": f"{SITE}/#author"}, "publisher": {"@id": f"{SITE}/#website"}, "dateModified": TODAY,
                "about": [b["name"] for b in entries]}
-        write(g["url"], page(g["url"], f"{meta.get('seo_title') or title} · {NAME}", meta.get("description") or title, body, nav="guide",
+        write(g["url"], page(g["url"], f"{meta.get('seo_title') or title} · {NAME}", meta.get("description") or title, body, nav="guide-" + g["slug"],
                              og_type="article", schema=ld(art, crumbs([("Home", "/"), (title, g["url"])]))))
 
 
