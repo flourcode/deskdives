@@ -354,3 +354,36 @@ table.specs td.hot { color: var(--lume); }
 .headshot { display: block; width: 112px; height: 112px; border-radius: 50%; object-fit: cover; margin: 0 0 22px; }
 @media (max-width: 900px) { .headshot { width: 96px; height: 96px; } }
 .about .copy em { color: var(--lume); }
+
+/* Guides: Seiko nickname field guide */
+.guide-head h1 { max-width: 14ch; }
+.g-intro { max-width: 62ch; margin-top: 18px; }
+.g-intro p { font-size: 20px; line-height: 1.6; margin: 0 0 .8em; }
+.g-jump { position: sticky; top: 0; z-index: 5; background: var(--abyss); border-top: 1px solid var(--lume-dim); border-bottom: 1px solid var(--rule); padding: 10px 0; margin: 30px 0 10px; display: flex; gap: 14px; align-items: baseline; }
+.g-jump > .label { white-space: nowrap; }
+.g-jump > div { display: flex; gap: 6px 14px; flex-wrap: wrap; font-family: var(--display); font-size: 13px; font-weight: 600; }
+.g-jump a { color: var(--lume-mid); white-space: nowrap; }
+.g-jump a:hover { color: var(--lume); }
+@media (max-width: 700px) {
+  .g-jump > div { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+  .g-jump > div::-webkit-scrollbar { display: none; }
+}
+.g-entry, .g-part { scroll-margin-top: 110px; border-top: 1px solid var(--rule); padding: 30px 0 34px; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 12px var(--gap); }
+@media (max-width: 900px) { .g-entry, .g-part { grid-template-columns: minmax(0, 1fr); } }
+.g-head h2, .g-part h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(30px, 3.6vw, 46px); line-height: 1; letter-spacing: -0.03em; color: var(--lume); }
+.g-tag { display: inline-block; margin-top: 10px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 7px; border: 1px solid var(--rule); border-radius: 2px; color: var(--lume-dim); }
+.g-tag.g-seiko { border-color: var(--lume); color: var(--lume); }
+.g-tag.g-adopted { border-color: var(--lume-dim); color: var(--lume-mid); }
+.g-body p, .g-part p { margin: 0 0 .9em; font-size: 19px; line-height: 1.6; max-width: 62ch; }
+.g-facts { margin: 14px 0 0; font-family: var(--mono); font-size: 12.5px; border-top: 1px solid var(--rule); max-width: 62ch; }
+.g-facts div { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--rule); }
+.g-facts dt { color: var(--lume-dim); }
+.g-facts dd { margin: 0; color: var(--lume-soft); }
+.mine { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 16px; align-items: center; margin-top: 18px; padding: 12px; max-width: 62ch; border: 1px solid var(--lume); border-radius: 3px; background: var(--abyss-2); }
+.mine img { width: 110px; height: 140px; object-fit: cover; display: block; }
+.mine b { display: block; font-family: var(--display); font-size: 18px; color: var(--lume); margin: 4px 0 2px; }
+.mine i { display: block; font-size: 15px; color: var(--lume-mid); line-height: 1.4; }
+.mine em { display: block; margin-top: 6px; font-style: normal; font-family: var(--display); font-weight: 600; font-size: 13px; color: var(--lume); }
+.mine:hover { background: var(--abyss-3); }
+.g-back { margin: 10px 0 0; font-family: var(--display); font-size: 13px; color: var(--lume-dim); }
+@media (max-width: 700px) { .g-entry, .g-part { scroll-margin-top: 56px; } .g-facts div { grid-template-columns: 112px minmax(0, 1fr); } }

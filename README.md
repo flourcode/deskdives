@@ -136,6 +136,17 @@ Videos load from YouTube only when someone presses play, which keeps the site fa
 
 Downloads are counted in Google Analytics as `wallpaper_download`.
 
+## The Seiko nickname guide
+
+The guide at deskdives.com/seiko-nicknames lives in `source/guides/seiko-nicknames.md`. Edit it like the About page:
+
+- `## Turtle {adopted}` starts an entry. The tag in curly brackets sets the label: `{seiko}` for a Seiko name, `{collector}` for a collector name, `{adopted}` for a collector name Seiko now uses. Entries appear in the jump menu alphabetically.
+- Lines like `**Original:** 6217-8000` become the small fact table under the entry.
+- `[[mine: seiko-turtle]]` adds an "In my collection" card for that watch folder, with its photo, and the watch page links back to the entry.
+- `# Heading` (one #) starts a plain section with no label.
+
+Another file in `source/guides`, for example `seiko-movements.md`, becomes its own page the same way.
+
 ## Write a journal entry
 
 1. Open `source/journal/_example-entry.md` and copy it.

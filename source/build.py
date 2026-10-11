@@ -336,6 +336,7 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
     cur = ' aria-current="page"'
     link = lambda key, href, label: f'<a href="{href}"{cur if nav == key else ""}>{label}</a>'
     yt_foot = f' · <a href="{e(YT)}" target="_blank" rel="me noopener">{e(S.get("youtube_label","YouTube"))}</a>' if YT else ""
+    guide_foot = "".join(f' · <a href="{g["url"]}">{e(g["meta"].get("footer_label") or g["meta"].get("title", ""))}</a>' for g in GUIDES)
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -395,7 +396,7 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
 {body}
 </main>
 <div class="wrap">
-  <footer class="site"><div class="bar"><span class="wordmark small">{e(NAME.upper())}</span><span>{e(TAGLINE)}{yt_foot} · © {date.today().year} {e(S.get('author',''))}</span></div></footer>
+  <footer class="site"><div class="bar"><span class="wordmark small">{e(NAME.upper())}</span><span>{e(TAGLINE)}{yt_foot}{guide_foot} · © {date.today().year} {e(S.get('author',''))}</span></div></footer>
 </div>
 </body>
 </html>
@@ -632,6 +633,8 @@ def build_watch(w, i):
     pl = f'<a href="{prev["url"]}"><span class="label">← No. {prev["no"]}</span>{e(prev["title"])}</a>' if prev else '<a href="/watches/"><span class="label">← Collection</span>All watches</a>'
     nl = f'<a class="next" href="{nxt["url"]}"><span class="label">No. {nxt["no"]} →</span>{e(nxt["title"])}</a>' if nxt else '<a class="next" href="/watches/"><span class="label">Collection →</span>All watches</a>'
     sub = " · ".join(x for x in [w.get("brand"), w.get("collection"), w.get("type")] if x)
+    gl = GUIDE_LINKS.get(w["slug"], [])
+    nick_links = ('<p class="g-back">Nickname explained: ' + ", ".join(f'<a class="inline" href="{u}">{e(n)}</a>' for n, u in gl) + "</p>") if gl else ""
     longest = max((len(x) for x in w["model"].split()), default=0)
     h1_cls = " xlong" if longest > 11 else (" long" if longest > 8 else "")
     body = f"""  <div class="wrap">
@@ -639,6 +642,7 @@ def build_watch(w, i):
       <span class="label">No. {w['no']} · {e(sub)}</span>
       <h1 class="glow{h1_cls}">{e(w['model'])}</h1>
       <p class="nick">{f"<i>{e(w.get('nickname'))}:</i> " if w.get('nickname') else ''}{e(w.get('line',''))}</p>
+      {nick_links}
     </section>
     {timing}
     <section class="grid w-main">
@@ -817,6 +821,99 @@ def build_wallpapers():
                                schema=ld(crumbs([("Home", "/"), ("Wallpapers", "/wallpapers/")]))))
 
 
+# ---------- guides (cornerstone pages such as /seiko-nicknames/) ----------
+GUIDE_TAGS = {"seiko": "Seiko name", "collector": "Collector name", "adopted": "Collector name, adopted by Seiko"}
+
+
+def anchor(t):
+    return re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-")
+
+
+def load_guides():
+    """source/guides/<name>.md becomes /<name>/. Entries are '## Name {seiko|collector|adopted}';
+    '**Key:** value' lines become a fact list; '[[mine: watch-folder]]' adds an 'In my collection' card."""
+    guides = []
+    for path in sorted(glob.glob(os.path.join(ROOT, "guides", "*.md"))):
+        name = os.path.splitext(os.path.basename(path))[0]
+        if name.startswith("_"):
+            continue
+        meta, body = front_matter(open(path, encoding="utf-8").read())
+        if meta.get("draft") in (True, "true", "yes"):
+            continue
+        g = {"slug": name, "url": f"/{name}/", "meta": meta, "intro": [], "blocks": []}
+        cur = None
+        for raw in body.splitlines():
+            line = raw.rstrip()
+            m = re.match(r"^##\s+(.+?)\s*\{(seiko|collector|adopted)\}\s*$", line)
+            if m:
+                cur = {"kind": "entry", "name": m.group(1).strip(), "tag": m.group(2), "lines": [], "mine": [], "facts": []}
+                cur["id"] = anchor(cur["name"]); g["blocks"].append(cur); continue
+            m = re.match(r"^#{1,2}\s+(.+?)\s*$", line)
+            if m:
+                cur = {"kind": "part", "name": m.group(1).strip(), "lines": []}; g["blocks"].append(cur); continue
+            if line.strip() == "---":
+                continue
+            target = cur["lines"] if cur else g["intro"]
+            mm = re.match(r"^\[\[mine:\s*([a-z0-9-]+)\s*\]\]$", line.strip())
+            fm = re.match(r"^\*\*([^*]+?):\*\*\s*(.+)$", line.strip())
+            if cur and cur["kind"] == "entry" and mm:
+                cur["mine"].append(mm.group(1))
+            elif cur and cur["kind"] == "entry" and fm:
+                cur["facts"].append((fm.group(1), fm.group(2)))
+            else:
+                target.append(line)
+        guides.append(g)
+    return guides
+
+
+def guide_links():
+    """watch folder -> [(nickname, url#anchor)] so watch pages can link to their nickname entry."""
+    links = {}
+    for g in GUIDES:
+        for b in g["blocks"]:
+            for slug in b.get("mine", []):
+                links.setdefault(slug, []).append((b["name"], f"{g['url']}#{b['id']}"))
+    return links
+
+
+def build_guides():
+    for g in GUIDES:
+        meta, entries = g["meta"], [b for b in g["blocks"] if b["kind"] == "entry"]
+        jump = sorted(entries, key=lambda b: (not b["name"][0].isdigit(), b["name"].lower()))
+        jump_html = "".join(f'<a href="#{b["id"]}">{e(b["name"])}</a>' for b in jump)
+        parts = []
+        for b in g["blocks"]:
+            text = markdown("\n".join(b["lines"]))
+            if b["kind"] == "part":
+                parts.append(f'<section class="g-part"><h2>{inline(b["name"])}</h2>{text}</section>'); continue
+            facts = "".join(f"<div><dt>{e(k)}</dt><dd>{inline(v)}</dd></div>" for k, v in b["facts"])
+            mine = ""
+            for slug in b["mine"]:
+                w = W_BY.get(slug)
+                if not w or not w.get("img"):
+                    continue
+                th = pick(w["srcset"], 400)
+                mine += (f'<a class="mine" href="{w["url"]}"><img src="{th}" alt="My {e(w["title"])}" loading="lazy" decoding="async">'
+                         f'<span><span class="label">In my collection</span><b>{e(w["title"])}</b><i>{e(w.get("line",""))}</i>'
+                         f'<em>See my {e(w["model"])} →</em></span></a>')
+            parts.append(f'<section class="g-entry" id="{b["id"]}"><div class="g-head"><h2>{e(b["name"])}</h2>'
+                         f'<span class="g-tag g-{b["tag"]}">{GUIDE_TAGS[b["tag"]]}</span></div>'
+                         f'<div class="g-body">{text}{("<dl class=g-facts>" + facts + "</dl>") if facts else ""}{mine}</div></section>')
+        title = meta.get("title", g["slug"].replace("-", " ").title())
+        body = f"""  <div class="wrap">
+    <section class="page-head guide-head"><span class="label">Guide</span><h1 class="glow">{e(title)}</h1>
+      {f'<p class="standfirst">{inline(meta["kicker"])}</p>' if meta.get("kicker") else ""}</section>
+    <div class="g-intro">{markdown(chr(10).join(g["intro"]))}</div>
+    <nav class="g-jump" aria-label="Jump to a nickname"><span class="label">Jump to</span><div>{jump_html}</div></nav>
+    <div class="g-list">{"".join(parts)}</div>
+  </div>"""
+        art = {"@type": "Article", "headline": title, "description": meta.get("description", ""), "url": f"{SITE}{g['url']}",
+               "author": {"@id": f"{SITE}/#author"}, "publisher": {"@id": f"{SITE}/#website"}, "dateModified": TODAY,
+               "about": [b["name"] for b in entries]}
+        write(g["url"], page(g["url"], f"{meta.get('seo_title') or title} · {NAME}", meta.get("description") or title, body, nav="guide",
+                             og_type="article", schema=ld(art, crumbs([("Home", "/"), (title, g["url"])]))))
+
+
 def build_redirects():
     """Old addresses from site.json 'redirects' forward to the new page."""
     for old, new in (S.get("redirects") or {}).items():
@@ -876,7 +973,7 @@ def build_static():
     for n in ("site.css", "site.js", "analytics.js"):
         shutil.copy(os.path.join(ROOT, n), os.path.join(OUT, "assets", n))
     urls = [("/", 1.0, None), ("/watches/", 0.9, None)] + [(w["url"], 0.8, w) for w in WATCHES] + \
-           [("/videos/", 0.6, None)] + ([("/wallpapers/", 0.6, None)] if WALLS else []) + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
+           [(g["url"], 0.8, None) for g in GUIDES] + [("/videos/", 0.6, None)] + ([("/wallpapers/", 0.6, None)] if WALLS else []) + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
     out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
     for u, pr, w in urls:
         imgs = ""
@@ -910,7 +1007,7 @@ Allow: /
 Sitemap: {SITE}/sitemap.xml
 """)
     L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko, some Omega and other Swiss and German watches, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
-         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", ] + ([f"- [Wallpapers]({SITE}/wallpapers/): free phone wallpapers"] if WALLS else []) + [f"- [About]({SITE}/about/)", "", "## Watches", ""]
+         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", ] + [f"- [{g['meta'].get('title','')}]({SITE}{g['url']}): {g['meta'].get('description','')}" for g in GUIDES] + ([f"- [Wallpapers]({SITE}/wallpapers/): free phone wallpapers"] if WALLS else []) + [f"- [About]({SITE}/about/)", "", "## Watches", ""]
     for w in WATCHES:
         bits = [w.get("ref") if w.get("ref") not in (None, "", "TBD") else None, w["specs"].get("Caliber") if w["specs"].get("Caliber") not in (None, "TBD") else None,
                 w["specs"].get("Case") if w["specs"].get("Case") not in (None, "TBD") else None, ("Verdict: " + w["verdict"]) if w.get("verdict") else None]
@@ -989,11 +1086,13 @@ if __name__ == "__main__":
                 print(f"Note: video '{v['title']}' lists watch '{s}', which has no folder. Ignoring that link.")
     POSTS = load_journal()
     WALLS = load_wallpapers()
+    GUIDES = load_guides()
+    GUIDE_LINKS = guide_links()
     build_brand_images()
     build_home(); build_watches_index()
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
-    build_videos(); build_journal(); build_wallpapers(); build_about(); build_404(); build_static(); build_redirects()
+    build_videos(); build_journal(); build_wallpapers(); build_guides(); build_about(); build_404(); build_static(); build_redirects()
     nv, np_ = len(VIDEOS), len(POSTS)
     v_word = "video" if nv == 1 else "videos"
     p_word = "journal entry" if np_ == 1 else "journal entries"
