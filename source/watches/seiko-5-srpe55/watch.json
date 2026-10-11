@@ -1,0 +1,54 @@
+{
+  "order": 19,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Seiko 5 Sports",
+  "type": "Sports 100 m",
+  "model": "SRPE55",
+  "ref": "SRPE55K1",
+  "nickname": "The Seiko 5",
+  "line": "The 40 mm Seiko 5 with no bezel. The cheapest watch here and it tells the same time.",
+  "key_numbers": [
+    [
+      "40.0",
+      "Case mm"
+    ],
+    [
+      "11.5",
+      "Thick mm"
+    ],
+    [
+      "100",
+      "Water res. m"
+    ],
+    [
+      "41",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "4R36, automatic, hacking, hand-winding",
+    "Case": "40 mm steel",
+    "Thickness": "11.5 mm",
+    "Lug width": "20 mm",
+    "Dial": "Black, day-date",
+    "Crystal": "Hardlex",
+    "Water resistance": "100 m",
+    "Power reserve": "About 41 hours"
+  },
+  "captions": {
+    "main.jpg": "On a tropic strap"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

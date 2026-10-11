@@ -27,12 +27,13 @@ The 62MAS was Seiko's first dive watch and Japan's first, introduced in 1965. Th
 
 Unlike most of the names on this page, 62MAS isn't a nickname somebody made up because the watch looked like an animal. It comes from Seiko's own catalog shorthand for the caliber 62 Seikomatic Selfdater family, and Seiko now routinely calls the watch the 62MAS.
 
-More importantly, it established a case and dial design Seiko has returned to again and again. Modern watches like the SLA017, SJE093, SPB143 and my SBDX041 descend from it. If somebody says a modern Seiko is "62MAS-inspired," this is what they mean.
+More importantly, it established a case and dial design Seiko has returned to again and again. Modern watches like the SLA017, SJE093, SPB143, my SBDX041 and my SLA037 descend from it. If somebody says a modern Seiko is "62MAS-inspired," this is what they mean.
 
 **Original:** 6217-8000 / 6217-8001
 **Why the name:** Seiko's catalog name for the caliber 62 Seikomatic Selfdater
 
 [[mine: seiko-sbdx041]]
+[[mine: seiko-sla037]]
 
 ## Willard {collector}
 

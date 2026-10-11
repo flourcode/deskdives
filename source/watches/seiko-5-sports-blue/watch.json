@@ -1,0 +1,37 @@
+{
+  "order": 25,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Seiko 5 Sports",
+  "type": "Sports 100 m",
+  "model": "Seiko 5 Sports",
+  "ref": "TBD",
+  "nickname": "The blue Seiko 5",
+  "line": "Blue sunburst dial, black and grey 24-hour bezel.",
+  "key_numbers": [
+    [
+      "100",
+      "Water res. m"
+    ]
+  ],
+  "specs": {
+    "Caliber": "4R36, automatic",
+    "Dial": "Blue, day-date",
+    "Water resistance": "100 m"
+  },
+  "captions": {
+    "main.jpg": "On blue rubber"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

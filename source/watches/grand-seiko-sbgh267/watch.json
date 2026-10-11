@@ -1,0 +1,54 @@
+{
+  "order": 16,
+  "draft": false,
+  "brand": "Grand Seiko",
+  "collection": "Heritage",
+  "type": "Hi-Beat 36000",
+  "model": "SBGH267",
+  "ref": "SBGH267",
+  "nickname": "The 9S anniversary",
+  "line": "Made for the 20th anniversary of the 9S movement. Blue textured dial, gold seconds hand. Not a dive watch, but it's allowed in.",
+  "key_numbers": [
+    [
+      "40.0",
+      "Case mm"
+    ],
+    [
+      "100",
+      "Water res. m"
+    ],
+    [
+      "55",
+      "Power res. h"
+    ],
+    [
+      "1,500",
+      "Made"
+    ]
+  ],
+  "specs": {
+    "Caliber": "9S85, automatic, 36,000 vph",
+    "Case": "40 mm steel",
+    "Thickness": "13.5 mm",
+    "Dial": "Blue, textured, gold seconds hand",
+    "Crystal": "Box sapphire",
+    "Water resistance": "100 m",
+    "Power reserve": "About 55 hours",
+    "Edition": "1,500 pieces, 2018, 20th anniversary of the 9S"
+  },
+  "captions": {
+    "main.jpg": "On the bracelet"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

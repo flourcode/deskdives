@@ -1,0 +1,53 @@
+{
+  "order": 18,
+  "draft": false,
+  "brand": "Grand Seiko",
+  "collection": "Elegance",
+  "type": "Manual wind",
+  "model": "SBGW231",
+  "ref": "SBGW231",
+  "nickname": "The hand-winder",
+  "line": "Based on the first Grand Seiko from 1960. No date, no rotor, 30 m. The least dive watch on this site.",
+  "key_numbers": [
+    [
+      "37.3",
+      "Case mm"
+    ],
+    [
+      "11.6",
+      "Thick mm"
+    ],
+    [
+      "30",
+      "Water res. m"
+    ],
+    [
+      "72",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "9S64, manual wind, 24 jewels",
+    "Case": "37.3 mm steel",
+    "Thickness": "11.6 mm",
+    "Dial": "Silver-ivory, textured",
+    "Crystal": "Box sapphire",
+    "Water resistance": "30 m",
+    "Power reserve": "About 72 hours"
+  },
+  "captions": {
+    "main.jpg": "On brown leather"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

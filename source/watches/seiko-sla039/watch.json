@@ -1,0 +1,54 @@
+{
+  "order": 15,
+  "draft": false,
+  "brand": "Seiko",
+  "collection": "Prospex",
+  "type": "Diver's 300 m",
+  "model": "SLA039",
+  "ref": "SLA039J1",
+  "nickname": "The 1968 Hi-Beat",
+  "line": "A re-creation of Seiko's 1968 Hi-Beat 300 m diver, the one that took Seiko from sport diving to professional diving. One of 1,100.",
+  "key_numbers": [
+    [
+      "44.8",
+      "Case mm"
+    ],
+    [
+      "300",
+      "Water res. m"
+    ],
+    [
+      "55",
+      "Power res. h"
+    ],
+    [
+      "1,100",
+      "Made"
+    ]
+  ],
+  "specs": {
+    "Caliber": "8L55, automatic, 37 jewels, 36,000 vph",
+    "Case": "44.8 mm Ever-Brilliant steel, one-piece",
+    "Thickness": "15.7 mm",
+    "Dial": "Grey-blue gradient",
+    "Crystal": "Sapphire",
+    "Water resistance": "300 m",
+    "Power reserve": "About 55 hours",
+    "Edition": "1,100 pieces, 2020, 55th anniversary of Seiko divers"
+  },
+  "captions": {
+    "main.jpg": "On the waffle strap"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}

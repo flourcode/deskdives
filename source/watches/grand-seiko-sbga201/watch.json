@@ -1,0 +1,53 @@
+{
+  "order": 17,
+  "draft": false,
+  "brand": "Grand Seiko",
+  "collection": "Heritage",
+  "type": "Spring Drive",
+  "model": "SBGA201",
+  "ref": "SBGA201",
+  "nickname": "The power reserve",
+  "line": "Spring Drive, so the seconds hand glides instead of ticking. The power reserve sits at seven. Mine lives on rubber.",
+  "key_numbers": [
+    [
+      "41.0",
+      "Case mm"
+    ],
+    [
+      "12.5",
+      "Thick mm"
+    ],
+    [
+      "100",
+      "Water res. m"
+    ],
+    [
+      "72",
+      "Power res. h"
+    ]
+  ],
+  "specs": {
+    "Caliber": "9R65 Spring Drive, automatic",
+    "Case": "41 mm steel",
+    "Thickness": "12.5 mm",
+    "Dial": "Silver, blue seconds hand, power reserve at 7",
+    "Crystal": "Box sapphire",
+    "Water resistance": "100 m",
+    "Power reserve": "About 72 hours"
+  },
+  "captions": {
+    "main.jpg": "On a rubber strap"
+  },
+  "acquired": "TBD",
+  "wrist_rank": "",
+  "deepest_dive": "",
+  "take": [],
+  "likes": [],
+  "annoyances": [],
+  "verdict": "",
+  "verdict_note": "",
+  "paid": null,
+  "math_quip": "",
+  "affiliate_url": "",
+  "affiliate_label": ""
+}
