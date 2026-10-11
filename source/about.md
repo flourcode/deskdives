@@ -1,10 +1,16 @@
 ---
-title: The desk diver
-lead: I own {count} watches, most of them built to go hundreds of meters down. Combined, they have been about four feet underwater, most of that in a hotel pool.
+title: Hi, I'm Mark.
+lead: I've been collecting watches for years. I currently own {count}, most of them built to go hundreds of meters underwater. Combined, they've probably been about four feet down, all of that in my pool.
 most_worn: 
-grail: Submariner. Still in the window.
+grail: Seiko SBDX041 BEAMS, one of 300. Staying.
 ---
 
-Mostly Seiko, a couple of Omegas, a few old ones from estate sales and eBay listings with blurry photos. I wear them to the office, to lunch, and once, briefly, into the ocean.
+Most of the new ones came from the delightful folks at [Right Time Watches](https://www.righttime.com) in Colorado. Some beautiful Grand Seikos have come and gone. The used ones usually came from hunting around [Chrono24](https://www.chrono24.com) and [r/Watchexchange](https://www.reddit.com/r/Watchexchange/).
 
-The channel is back. This site is where the collection lives between videos: the specs, the photos, the opinions, and an honest count of how often each one leaves the box.
+That's where I found my grail, a [Seiko SBDX041](/watches/seiko-sbdx041/) BEAMS Japan limited edition. One of 300. That one's staying.
+
+I don't usually bring up watches, but if you notice the one I'm wearing, I can go a little Patrick Bateman explaining why the dial is interesting or why this particular Seiko is different from the other 47 Seikos that look exactly like it.
+
+Desk Dives gives me somewhere to put all that.
+
+*Watches built for adventure. Mostly worn to pipeline meetings.*

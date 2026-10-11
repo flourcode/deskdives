@@ -1,5 +1,5 @@
 {
-  "_how_to": "Site-wide settings. Edit the text between the quotes. 'tagline' is the big line on the home page. 'description' is what Google and link previews show for the home page. Leave youtube empty to hide YouTube links.",
+  "_how_to": "Site-wide settings. Edit the text between the quotes. 'tagline' is the big line on the home page. 'description' is what Google and link previews show for the home page. Leave youtube empty to hide YouTube links. 'redirects' sends an old address to a new one, for example after renaming a watch folder.",
   "name": "Desk Dives",
   "domain": "https://deskdives.com",
   "tagline": "Nobody in the meeting knows it's rated to 300 meters. You do.",
@@ -18,5 +18,8 @@
     "name": "Rolex Submariner Date, list",
     "price": 10250,
     "note": "Submariner Date 126610LN US list price after the January 2026 increase. Checked October 2026."
+  },
+  "redirects": {
+    "/watches/seiko-sla017/": "/watches/seiko-sbdx041/"
   }
 }

@@ -351,3 +351,6 @@ table.specs td.hot { color: var(--lume); }
 .wall .dl span { font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--lume-dim); }
 .wall .dl:hover { background: var(--lume); color: var(--abyss); }
 .wall .dl:hover span { color: var(--abyss); }
+.headshot { display: block; width: 112px; height: 112px; border-radius: 50%; object-fit: cover; margin: 0 0 22px; }
+@media (max-width: 900px) { .headshot { width: 96px; height: 96px; } }
+.about .copy em { color: var(--lume); }

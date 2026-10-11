@@ -1,6 +1,6 @@
 {
   "order": 2,
-  "draft": false,
+  "draft": true,
   "brand": "Seiko",
   "collection": "Prospex",
   "type": "Diver's 200 m",
@@ -55,5 +55,6 @@
   "paid": null,
   "math_quip": "",
   "affiliate_url": "",
-  "affiliate_label": ""
+  "affiliate_label": "",
+  "_note": "Replaced by watches/seiko-sbdx041. This folder can be deleted."
 }

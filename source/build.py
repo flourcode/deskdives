@@ -714,6 +714,7 @@ def build_about():
     body = f"""  <div class="wrap">
     <section class="grid about">
       <div class="copy">
+        {f'<img class="headshot" src="{IMG["headshot"]}" width="240" height="240" alt="{e(S.get("author",""))}, who writes {e(NAME)}">' if IMG.get("headshot") else ""}
         <span class="label">About</span>
         <h1 class="glow">{e(meta.get('title','About'))}</h1>
         {f"<p class='lead'>{inline(meta['lead'])}</p>" if meta.get('lead') else ''}
@@ -785,6 +786,23 @@ def build_wallpapers():
                                f"Free {NAME} phone wallpapers for iPhone and Android: dive watch watercolors by {S.get('author','')}.",
                                body, nav="wallpapers", og=WALLS[0]["og"], og_alt=f"{NAME} phone wallpaper",
                                schema=ld(crumbs([("Home", "/"), ("Wallpapers", "/wallpapers/")]))))
+
+
+def build_redirects():
+    """Old addresses from site.json 'redirects' forward to the new page."""
+    for old, new in (S.get("redirects") or {}).items():
+        if not old.startswith("/") or not new.startswith("/"):
+            fail(f"site.json redirects: both addresses should start with / (got '{old}' -> '{new}').")
+        target = SITE + new
+        html_ = (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Moved · {e(NAME)}</title>'
+                 f'<link rel="canonical" href="{target}"><meta name="robots" content="noindex">'
+                 f'<meta http-equiv="refresh" content="0; url={new}"></head>'
+                 f'<body><p>This page moved to <a href="{new}">{target}</a>.</p></body></html>')
+        dst = os.path.join(OUT, old.strip("/"), "index.html") if old.endswith("/") else os.path.join(OUT, old.lstrip("/"))
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        if os.path.exists(dst):
+            fail(f"site.json redirects: '{old}' is still a real page. Remove the redirect or hide that page first.")
+        open(dst, "w", encoding="utf-8").write(html_)
 
 
 def build_404():
@@ -867,6 +885,10 @@ def build_brand_images():
         mark = bezel_icon(360)
         card.paste(mark, ((1200 - 360) // 2, (630 - 360) // 2))
         IMG["og-site"] = save(card, "images/og/desk-dives.jpg", quality=86)
+    hp = next((p for p in glob.glob(os.path.join(ROOT, "brand", "headshot.*")) if p.lower().endswith(IMG_EXT)), None)
+    if hp:
+        with Image.open(hp) as im:
+            IMG["headshot"] = save(ImageOps.exif_transpose(im).convert("RGBA").resize((240, 240), Image.LANCZOS), "images/headshot.png")
     ap = next((p for p in glob.glob(os.path.join(ROOT, "brand", "about-*")) if p.lower().endswith(IMG_EXT)), None)
     if ap:
         im = open_img(ap); im.thumbnail((1600, 1600), Image.LANCZOS)
@@ -906,7 +928,7 @@ if __name__ == "__main__":
     build_home(); build_watches_index()
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
-    build_videos(); build_journal(); build_wallpapers(); build_about(); build_404(); build_static()
+    build_videos(); build_journal(); build_wallpapers(); build_about(); build_404(); build_static(); build_redirects()
     nv, np_ = len(VIDEOS), len(POSTS)
     v_word = "video" if nv == 1 else "videos"
     p_word = "journal entry" if np_ == 1 else "journal entries"
