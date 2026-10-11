@@ -124,6 +124,9 @@ def save(im, rel, **kw):
     if rel.endswith(".jpg"):
         im = im.convert("RGB")
         kw = {"quality": 84, "optimize": True, "progressive": True, **kw}
+    elif rel.endswith(".webp"):
+        im = im if im.mode in ("RGB", "RGBA") else im.convert("RGB")
+        kw = {"quality": 78, "method": 6, **kw}
     im.save(path, **kw)  # saved without EXIF, so no GPS or camera data is published
     return f"/{rel}?v={fhash(path)}"
 
@@ -146,6 +149,25 @@ def sized(im, rel_base, sizes):
         out.append((url, c.size[0]))
         big = (url, c.size[0], c.size[1])
     return out, big
+
+
+def widths(im, rel_base, ws):
+    """WebP copies at the given widths (never upscaled). Returns [(url, width)], and (url, w, h) of the largest."""
+    out, big = [], None
+    for wd in sorted(ws):
+        if wd > im.size[0] and out:
+            break
+        c = im.copy()
+        if c.size[0] > wd:
+            c = c.resize((wd, round(c.size[1] * wd / c.size[0])), Image.LANCZOS)
+        url = save(c, f"{rel_base}-{c.size[0]}.webp")
+        out.append((url, c.size[0])); big = (url, c.size[0], c.size[1])
+    return out, big
+
+
+def pick(srcset, want):
+    """The candidate closest to `want` pixels wide, for the plain src."""
+    return min(srcset, key=lambda x: abs(x[1] - want))[0]
 
 
 def og_card(im, rel):
@@ -230,19 +252,26 @@ def process_watch_images(w):
     w["img"] = None
     if w["main_file"]:
         im = open_img(os.path.join(w["folder"], w["main_file"]))
-        w["srcset"], (w["img"], w["iw"], w["ih"]) = sized(im, f"{rel}/{w['slug']}-{w['brand'].lower()}-watch", [(800, "-800"), (1600, ""), (2400, "-2400")])
-        w["img_plain"] = f"/{rel}/{w['slug']}-{w['brand'].lower()}-watch.jpg"
+        base = f"{rel}/{w['slug']}-{w['brand'].lower()}-watch"
+        w["srcset"], (_, w["iw"], w["ih"]) = widths(im, base, [400, 600, 800, 1200, 1600])
+        w["img"] = pick(w["srcset"], 800)
+        big = im.copy(); big.thumbnail((1600, 1600), Image.LANCZOS)
+        save(big, f"{base}.jpg")                        # JPG for share previews, Pinterest and search
+        w["img_plain"] = f"/{base}.jpg"
+        d = im.copy(); d.thumbnail((360, 360), Image.LANCZOS)
+        w["disc"] = save(d, f"{base}-disc.webp")         # small round image in "On the wrist"
         w["og"] = og_card(im, f"images/og/{w['slug']}.jpg")
     w["gallery"] = []
     for f in w["gallery_files"]:
         im = open_img(os.path.join(w["folder"], f))
         base = os.path.splitext(f)[0]
         t = im.copy(); t.thumbnail((900, 900), Image.LANCZOS)
-        thumb = save(t, f"{rel}/{base}-900.jpg")
+        tset, _ = widths(t, f"{rel}/{base}", [300, 450, 600, 900])
+        thumb = pick(tset, 600)
         big = im.copy(); big.thumbnail((2400, 2400), Image.LANCZOS)
         full = save(big, f"{rel}/{base}.jpg")
         cap = w["captions"].get(f) or w["captions"].get(base) or base.replace("-", " ").replace("_", " ").capitalize()
-        w["gallery"].append(dict(thumb=thumb, full=full, w=t.size[0], h=t.size[1], caption=cap))
+        w["gallery"].append(dict(tset=", ".join(f"{u} {x}w" for u, x in tset), thumb=thumb, full=full, w=t.size[0], h=t.size[1], caption=cap))
     w["figures"] = []
     for f in w["figure_files"]:
         im = open_img(os.path.join(w["folder"], f))
@@ -338,10 +367,9 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/assets/site.css?v={ASSET_V['site.css']}">
+<link rel="preload" href="{FONT_URL['inter-latin-var.woff2']}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{FONT_URL['newsreader-latin-400-normal.woff2']}" as="font" type="font/woff2" crossorigin>
+<style>{INLINE_CSS}</style>
 <script src="/assets/analytics.js?v={ASSET_V['analytics.js']}" defer></script>
 <script src="/assets/site.js?v={ASSET_V['site.js']}" defer></script>
 {schema}
@@ -439,13 +467,14 @@ def video_card(v, big=False):
     short = bool(v.get("short"))
     big = big and not short
     thumb = v.get("poster") or f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
+    poster_srcset = (' srcset="' + ", ".join(f"{u} {x}w" for u, x in v["poster_set"]) + '" sizes="(max-width: 600px) 80vw, 300px"') if v.get("poster_set") else ""
     w_titles = ", ".join(e(W_BY[s]["title"]) for s in v.get("watches", []) if s in W_BY)
     cls = "vid" + (" big" if big else "") + (" short" if short else "")
     link = f"https://www.youtube.com/shorts/{e(v['id'])}" if short else f"https://www.youtube.com/watch?v={e(v['id'])}"
     tc = f'<span class="tc">{e(v.get("length",""))}</span>' if v.get("length") else ""
     tag = '<span class="tag">Short</span>' if short else ""
     return f"""<div class="{cls}">
-          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}" alt="" loading="lazy" decoding="async"><span class="play"></span>{tag}{tc}</button>
+          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}"{poster_srcset} alt="" loading="lazy" decoding="async"><span class="play"></span>{tag}{tc}</button>
           <h3><a href="{link}" target="_blank" rel="noopener">{e(v['title'])}</a></h3>
           <p>{e(v.get('summary',''))}{(' · Features ' + w_titles) if w_titles else ''}</p>
         </div>"""
@@ -488,7 +517,7 @@ def build_home():
     ow = W_BY.get(S.get("on_wrist"))
     spot = ""
     if ow:
-        disc = f'<img src="{ow["img"]}" alt="">' if ow.get("img") else ""
+        disc = f'<img src="{ow["disc"]}" alt="" loading="lazy" decoding="async">' if ow.get("disc") else ""
         note = S.get("on_wrist_note") or ow.get("line", "")
         spot = f"""<div class="spotlight"><span class="label">On the wrist this week</span>
           <a class="who" href="{ow['url']}"><span class="disc">{disc}</span><span><b>{e(ow['title'])}</b><i>No. {ow['no']}{(' · ' + rank(ow) + ' this year') if rank(ow) else ''}</i></span></a>
@@ -589,7 +618,7 @@ def build_watch(w, i):
     </section>"""
     figs = "".join(f"""<section class="grid fig"><div class="txt"><span class="label">Fig.</span><p><i>From the sketchbook:</i> {e(f['caption'])}</p></div>
       <figure class="art"><img src="{f['url']}" width="{f['w']}" height="{f['h']}" alt="Watercolor of the {e(w['title'])}" loading="lazy" decoding="async"></figure></section>""" for f in w["figures"])
-    gal = "".join(f"""<figure class="plate"><a class="win" href="{g['full']}"><img src="{g['thumb']}" width="{g['w']}" height="{g['h']}" alt="{e(w['title'])}: {e(g['caption'])}" loading="lazy" decoding="async"></a>
+    gal = "".join(f"""<figure class="plate"><a class="win" href="{g['full']}"><img src="{g['thumb']}" srcset="{g['tset']}" sizes="(max-width: 560px) 46vw, 300px" width="{g['w']}" height="{g['h']}" alt="{e(w['title'])}: {e(g['caption'])}" loading="lazy" decoding="async"></a>
           <figcaption><span><b>Plate {w['no']}.{j + 2}</b> · {e(g['caption'])}</span></figcaption></figure>""" for j, g in enumerate(w["gallery"]))
     vids = [v for v in VIDEOS if w["slug"] in v.get("watches", [])]
     vid_html = "".join(video_card(v) for v in vids)
@@ -654,7 +683,7 @@ def build_videos():
     <div class="video-grid">{grid}</div>
   </div>"""
     nodes = [{"@type": "VideoObject", "name": v["title"], "description": v.get("summary") or v["title"],
-              "thumbnailUrl": (SITE + v["poster"]) if v.get("poster") else f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg", "uploadDate": v.get("date") or TODAY,
+              "thumbnailUrl": (SITE + v["poster_jpg"]) if v.get("poster_jpg") else f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg", "uploadDate": v.get("date") or TODAY,
               "embedUrl": f"https://www.youtube-nocookie.com/embed/{v['id']}", "contentUrl": (f"https://www.youtube.com/shorts/{v['id']}" if v.get("short") else f"https://www.youtube.com/watch?v={v['id']}")} for v in VIDEOS]
     write("/videos/", page("/videos/", f"Videos · Dive Watches on YouTube · {NAME}", f"{NAME} videos: wrist shots, lume tests and honest notes on Seiko and Citizen dive watches.",
                            body, nav="videos", schema=ld(*nodes, crumbs([("Home", "/"), ("Videos", "/videos/")]))))
@@ -709,8 +738,8 @@ def build_about():
     log = "".join(f"<div><dt>{k}</dt><dd>{v if k in ('YouTube',) else e(v)}</dd></div>" for k, v in log_rows if v and str(v).strip() not in ("", "TBD"))
     art = ""
     if IMG.get("about-art"):
-        u, aw, ah = IMG["about-art"]
-        art = f'<figure class="art"><img src="{u}" width="{aw}" height="{ah}" alt="Watercolor by {e(S.get("author",""))} of a dive watch" loading="lazy" decoding="async"><figcaption class="label">Fig. 1 · Watercolor, {e(S.get("author",""))}</figcaption></figure>'
+        u, aw, ah, aset = IMG["about-art"]
+        art = f'<figure class="art"><img src="{u}" srcset="{aset}" sizes="(max-width: 900px) 100vw, 50vw" width="{aw}" height="{ah}" alt="Watercolor by {e(S.get("author",""))} of a dive watch" loading="lazy" decoding="async"><figcaption class="label">Fig. 1 · Watercolor, {e(S.get("author",""))}</figcaption></figure>'
     body = f"""  <div class="wrap">
     <section class="grid about">
       <div class="copy">
@@ -772,7 +801,7 @@ def build_wallpapers():
                         f'{e(it["device"])} <span>{it["w"]} × {it["h"]}</span></a>')
         first = open_img(os.path.join(w["folder"], w["items"][0]["file"]))
         th = first.copy(); th.thumbnail((640, 1400), Image.LANCZOS)
-        w["thumb"] = save(th, f"images/wallpapers/{w['slug']}-preview.jpg", quality=82)
+        w["thumb"] = save(th, f"images/wallpapers/{w['slug']}-preview.webp")
         w["og"] = og_card(first, f"images/og/wallpaper-{w['slug']}.jpg")
         cards.append(f"""<figure class="wall"><div class="plate"><div class="win"><img src="{w['thumb']}" width="{th.size[0]}" height="{th.size[1]}" alt="{e(w['title'])} phone wallpaper by {e(S.get('author',''))}" loading="lazy" decoding="async"></div></div>
         <figcaption><b>{e(w['title'])}</b><span class="dls">{''.join(btns)}</span></figcaption></figure>""")
@@ -810,6 +839,36 @@ def build_404():
     <p class="standfirst">That page doesn't exist. The watches are all <a class="inline" href="/watches/">here</a>.</p></section></div>"""
     write("/404.html", page("/404.html", f"Page not found · {NAME}", "This page could not be found.", body).replace(
         '<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">'))
+
+
+FONT_FACES = [  # self-hosted (no Google Fonts request): family, file, weight, style
+    ("Inter", "inter-latin-var.woff2", "100 900", "normal"),
+    ("Newsreader", "newsreader-latin-400-normal.woff2", "400", "normal"),
+    ("Newsreader", "newsreader-latin-400-italic.woff2", "400", "italic"),
+    ("Newsreader", "newsreader-latin-500-normal.woff2", "500", "normal"),
+    ("Newsreader", "newsreader-latin-500-italic.woff2", "500", "italic"),
+    ("IBM Plex Mono", "ibm-plex-mono-latin-400-normal.woff2", "400", "normal"),
+    ("IBM Plex Mono", "ibm-plex-mono-latin-500-normal.woff2", "500", "normal"),
+    ("IBM Plex Mono", "ibm-plex-mono-latin-600-normal.woff2", "600", "normal"),
+]
+
+
+def prepare_fonts_and_css():
+    """Copy fonts to /assets/fonts and build the CSS that every page carries inline (one less request before the page can draw)."""
+    global INLINE_CSS
+    os.makedirs(os.path.join(OUT, "assets", "fonts"), exist_ok=True)
+    faces = []
+    for fam, fn, wt, st in FONT_FACES:
+        src = os.path.join(ROOT, "fonts", fn)
+        if not os.path.exists(src):
+            fail(f"Missing font file: source/fonts/{fn}")
+        shutil.copy(src, os.path.join(OUT, "assets", "fonts", fn))
+        FONT_URL[fn] = f"/assets/fonts/{fn}?v={fhash(src)}"
+        faces.append(f"@font-face{{font-family:'{fam}';font-style:{st};font-weight:{wt};font-display:swap;src:url({FONT_URL[fn]}) format('woff2')}}")
+    css = open(os.path.join(ROOT, "site.css"), encoding="utf-8").read()
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)          # drop comments
+    css = re.sub(r"\s*\n\s*", "\n", css).strip()
+    INLINE_CSS = "".join(faces) + "\n" + css
 
 
 def build_static():
@@ -888,11 +947,12 @@ def build_brand_images():
     hp = next((p for p in glob.glob(os.path.join(ROOT, "brand", "headshot.*")) if p.lower().endswith(IMG_EXT)), None)
     if hp:
         with Image.open(hp) as im:
-            IMG["headshot"] = save(ImageOps.exif_transpose(im).convert("RGBA").resize((240, 240), Image.LANCZOS), "images/headshot.png")
+            IMG["headshot"] = save(ImageOps.exif_transpose(im).convert("RGBA").resize((240, 240), Image.LANCZOS), "images/headshot.webp")
     ap = next((p for p in glob.glob(os.path.join(ROOT, "brand", "about-*")) if p.lower().endswith(IMG_EXT)), None)
     if ap:
         im = open_img(ap); im.thumbnail((1600, 1600), Image.LANCZOS)
-        IMG["about-art"] = (save(im, "images/about.jpg"), im.size[0], im.size[1])
+        aset, (_, aw, ah) = widths(im, "images/about", [600, 900, 1300, 1600])
+        IMG["about-art"] = (pick(aset, 900), aw, ah, ", ".join(f"{u} {x}w" for u, x in aset))
 
 
 if __name__ == "__main__":
@@ -900,6 +960,9 @@ if __name__ == "__main__":
         shutil.rmtree(OUT)
     os.makedirs(OUT)
     IMG = {}
+    FONT_URL = {}
+    INLINE_CSS = ""
+    prepare_fonts_and_css()
     WATCHES = load_watches()
     if not WATCHES:
         fail("There are no watches. Add at least one folder in source/watches.")
@@ -916,7 +979,9 @@ if __name__ == "__main__":
         pp = next((p for p in glob.glob(os.path.join(ROOT, "videos", vid + ".*")) if p.lower().endswith(IMG_EXT)), None)
         if pp:  # optional local poster: source/videos/<id>.jpg
             im = open_img(pp); im.thumbnail((900, 1600), Image.LANCZOS)
-            v["poster"] = save(im, f"images/videos/{vid}.jpg")
+            v["poster_jpg"] = save(im, f"images/videos/{vid}.jpg")   # for search results
+            v["poster_set"], _ = widths(im, f"images/videos/{vid}", [360, 540, 720])
+            v["poster"] = pick(v["poster_set"], 540)
         VIDEOS.append(v)
     for v in VIDEOS:
         for s in v.get("watches", []):

@@ -19,6 +19,7 @@ source/
     images/         photos used in journal entries
   about.md          the About page
   brand/            about-watercolor.jpg, the art on the About page
+  fonts/            the site's fonts, served from your own domain (no need to touch)
   build.py, site.css, site.js, analytics.js   (no need to touch, except analytics.js once)
 amplify.yml         tells Amplify how to build
 customHttp.yml      caching and security settings
