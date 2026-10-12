@@ -199,6 +199,7 @@ The guide at deskdives.com/seiko-nicknames lives in `source/guides/seiko-nicknam
 
 - `tagline` and `subline` are the big lines on the home page. `watch_tagline` opens the Watches page. `description` is what Google and link previews show for the home page, and `home_title` is the home page's title in Google. `dateline` is the small line under the masthead, after the count of things.
 - `videos_sub` and `journal_sub` are the one-line intros for videos and the journal. `sections` holds the intro line for the Toys and Gear pages.
+- **The site icon** (browser tab, home screen, bookmarks) is `source/brand/icon.png`: a square logo, edge to edge, at least 512 × 512. The build makes every size from it and rounds the corners for browser tabs. Upload a new icon.png to change it.
 - **The big home page photo** is `source/brand/hero.jpg`, a photo of the desk itself, with `hero_caption` under it. It's also the picture that shows when someone shares the home page. To change it, upload a new hero.jpg. Without one, the home page shows `featured` instead.
 - `featured` is the watch (or toy or gear) shown large on the home page when there's no hero.jpg, and its photo becomes the site's default share image. `on_wrist` is the "On the wrist this week" watch. Both use folder names.
 - `benchmark` is the Rolex price used in The math. Update `price` and `note` when Rolex changes its prices.

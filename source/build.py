@@ -420,7 +420,7 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
 <meta name="twitter:image" content="{SITE}{og}">
 <meta name="theme-color" content="#06121c">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+{'' if IMG.get("brand_icon") else '<link rel="icon" type="image/svg+xml" href="/favicon.svg">'}
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -1233,11 +1233,32 @@ Sitemap: {SITE}/sitemap.xml
     open(os.path.join(OUT, "humans.txt"), "w").write(f"Watches, toys and words: {S.get('author','')}\nType: Inter, Newsreader, IBM Plex Mono\n")
 
 
+def rounded(im, r=0.2):
+    """The square icon with rounded corners on a transparent background, for browser tabs."""
+    k = 4; big = im.convert("RGBA").resize((im.size[0] * k, im.size[1] * k), Image.LANCZOS)
+    mask = Image.new("L", big.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle([0, 0, big.size[0] - 1, big.size[1] - 1], radius=int(big.size[0] * r), fill=255)
+    big.putalpha(mask)
+    return big.resize(im.size, Image.LANCZOS)
+
+
 def build_brand_images():
-    for s, name in ((512, "icon-512.png"), (192, "icon-192.png"), (180, "apple-touch-icon.png"), (48, "favicon-48.png"), (32, "favicon-32.png")):
-        bezel_icon(s).save(os.path.join(OUT, name))
-    bezel_icon(256).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
-    open(os.path.join(OUT, "favicon.svg"), "w").write(
+    ip = next((p for p in glob.glob(os.path.join(ROOT, "brand", "icon.*")) if p.lower().endswith(IMG_EXT)), None)
+    if ip:  # brand/icon.png: a square logo, full bleed. Home screens round it themselves; tabs get rounded corners here.
+        src = ImageOps.exif_transpose(Image.open(ip)).convert("RGB")
+        sq = lambda n: src.resize((n, n), Image.LANCZOS)
+        for n, name in ((512, "icon-512.png"), (192, "icon-192.png"), (180, "apple-touch-icon.png")):
+            sq(n).save(os.path.join(OUT, name))
+        for n, name in ((48, "favicon-48.png"), (32, "favicon-32.png")):
+            rounded(sq(n * 4)).resize((n, n), Image.LANCZOS).save(os.path.join(OUT, name))
+        rounded(sq(256)).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+        IMG["brand_icon"] = True
+    else:
+        for s, name in ((512, "icon-512.png"), (192, "icon-192.png"), (180, "apple-touch-icon.png"), (48, "favicon-48.png"), (32, "favicon-32.png")):
+            bezel_icon(s).save(os.path.join(OUT, name))
+        bezel_icon(256).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+    if not ip:
+      open(os.path.join(OUT, "favicon.svg"), "w").write(
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#06121c"/>'
         '<circle cx="32" cy="32" r="22" fill="none" stroke="#dceab9" stroke-width="5.4"/>'
         '<path d="M23.7 13.2h16.6L32 25.7z" fill="#dceab9"/></svg>')
