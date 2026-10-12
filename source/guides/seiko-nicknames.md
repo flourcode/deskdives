@@ -43,7 +43,7 @@ The 6105-8110/8119 arrived in 1970 with the big asymmetrical cushion case and cr
 
 Its nickname came later. Martin Sheen wore a 6105 as Captain Benjamin Willard in *Apocalypse Now*, so collectors started calling it the Captain Willard, or usually just the Willard.
 
-Seiko has since made modern interpretations, including the SPB151 and its relatives. In Japan, the same watch is also associated with explorer Naomi Uemura, who wore a 6105 on his expeditions.
+Seiko has since made modern interpretations, including the SPB151, my grey-dial SPB237 and their relatives. In Japan, the same watch is also associated with explorer Naomi Uemura, who wore a 6105 on his expeditions.
 
 **Original:** 6105-8110 / 6105-8119
 **Why the name:** Captain Willard in *Apocalypse Now*

@@ -6,14 +6,19 @@
   "maker": "",
   "kind": "Squishy",
   "line": "Squeeze it once and wait.",
-  "what": "A slow-rise squishy shaped like a pat of butter.",
+  "what": "A slow-rise squishy shaped like a stick of salted butter. Grade AA, 4 oz, tablespoon marks and all.",
   "why": [],
-  "specs": {},
+  "specs": {
+    "Type": "Slow-rise foam"
+  },
   "acquired": "",
   "verdict": "",
   "verdict_note": "",
   "key_numbers": [],
-  "captions": {},
+  "captions": {
+    "main.jpg": "Before",
+    "2-squished.jpg": "During. It comes back, slowly."
+  },
   "affiliate_url": "",
   "affiliate_label": ""
 }

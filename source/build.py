@@ -505,10 +505,20 @@ def watch_card(w, mixed=False):
         return thing_card(w, mixed)
     rk = rank(w)
     rk_html = f"<b>{rk} · WRIST TIME</b>" if rk == "P1" else (f"<span>{rk}</span>" if rk else "")
-    no = f"WATCH · NO. {w['no']}" if mixed else f"NO. {w['no']}"
-    return f"""        <a class="watch-card" href="{w['url']}" data-cat="watches"{sound_attr(w)}>
-          {plate(w, caption=False)}
-          <div class="meta"><span class="no"><span>{no}</span>{rk_html}</span><span class="name">{e(w['title'])}</span><span class="ref">{e(ref_text(w))}</span><span class="line">{e(w.get('line',''))}</span></div>
+    band = "Dive watch" if "diver" in (w.get("type") or "").lower() else "Watch"
+    return card_html(w, band, w.get("brand", ""), w.get("model") or w["title"], ref_text(w), rk_html)
+
+
+def card_html(t, band, top, name, sub, extra=""):
+    """A late-70s baseball-card front: category banner, framed photo, name plate, round number badge. Notes sit under the card."""
+    return f"""        <a class="watch-card c-{t.get('cat', 'watches')}" href="{t['url']}" data-cat="{t.get('cat', 'watches')}"{sound_attr(t)}>
+          <div class="card"><div class="frame">
+            <div class="band">{e(band)}</div>
+            {plate(t, caption=False)}
+            <div class="np">{f'<small>{e(top)}</small>' if top else ''}<b>{e(name)}</b></div>
+            <div class="pos" aria-label="Number {t['no']}">{t['no']}</div>
+          </div></div>
+          <div class="meta"><span class="ref">{e(sub)}{(' · ' + extra) if extra else ''}</span><span class="line">{e(t.get('line',''))}</span></div>
         </a>"""
 
 
@@ -521,11 +531,7 @@ def thing_sub(t):
 
 
 def thing_card(t, mixed=False):
-    no = f"{CAT_ONE[t['cat']].upper()} · NO. {t['no']}" if mixed else f"NO. {t['no']}"
-    return f"""        <a class="watch-card" href="{t['url']}" data-cat="{t['cat']}"{sound_attr(t)}>
-          {plate(t, caption=False)}
-          <div class="meta"><span class="no"><span>{no}</span></span><span class="name">{e(t['title'])}</span><span class="ref">{e(thing_sub(t))}</span><span class="line">{e(t.get('line',''))}</span></div>
-        </a>"""
+    return card_html(t, t.get("kind") or CAT_ONE[t["cat"]], t.get("maker") or CAT_ONE[t["cat"]], t["title"], thing_sub(t) or CAT_ONE[t["cat"]])
 
 
 YT_ID = re.compile(r"(?:youtu\.be/|youtube\.com/(?:watch\?(?:.*&)?v=|shorts/|embed/|live/))([A-Za-z0-9_-]{11})")
@@ -760,10 +766,10 @@ def build_watch(w, i):
       {nick_links}
     </section>
     {timing}
-    <section class="grid w-main">
+    <section class="grid w-main c-watches">
       {plate(w, eager=True, sizes="(max-width: 900px) 92vw, 55vw")}
       <aside class="w-side">
-        <table class="specs"><caption class="label">Specifications</caption>{spec_rows}</table>
+        <table class="specs"><caption class="label">Card back · No. {w['no']}</caption>{spec_rows}</table>
         {share}
       </aside>
     </section>
@@ -818,7 +824,7 @@ def build_thing(t, i):
     if not blank(t.get("acquired")):
         rows.append(("Acquired", t["acquired"]))
     spec_rows = "".join(f'<tr><th scope="row">{e(k)}</th><td>{e(v)}</td></tr>' for k, v in rows)
-    specs = f'<table class="specs"><caption class="label">A few details</caption>{spec_rows}</table>' if rows else ""
+    specs = f'<table class="specs"><caption class="label">Card back · No. {t["no"]}</caption>{spec_rows}</table>' if rows else ""
     kn = "".join(f'<div><b>{e(v)}</b><span class="label">{e(l)}</span></div>' for v, l in t["key_numbers"])
     timing = f'<section class="timing" style="--n:{len(t["key_numbers"])}" aria-label="Key numbers">{kn}</section>' if t["key_numbers"] else ""
     share = share_links(SITE + t["url"], f"{t['title']} · {NAME}", SITE + (t.get("img_plain") or IMG["og-site"]), cat, t["slug"])
@@ -857,7 +863,7 @@ def build_thing(t, i):
       {f'<p class="nick">{e(t.get("line",""))}</p>' if t.get("line") else ""}
     </section>
     {timing}
-    <section class="grid w-main">
+    <section class="grid w-main c-{cat}">
       {plate(t, eager=True, sizes="(max-width: 900px) 92vw, 55vw")}
       <aside class="w-side">
         {specs}
@@ -885,7 +891,7 @@ def build_desk():
             (f'<button type="button" class="chip" data-filter="sound" aria-pressed="false">🔊 Sounds <span>{sum(1 for t in ALL if t["slug"] in SOUND)}</span></button>' if any(t["slug"] in SOUND for t in ALL) else "") + "</div>"
     cards = "\n".join(watch_card(t, mixed=True) for t in ALL)
     body = f"""  <div class="wrap">
-    <section class="page-head"><span class="label">Everything</span><h1 class="glow">The desk</h1>
+    <section class="page-head desk-head"><span class="label">The desk · Everything</span><h1 class="glow">Dive In<em>!</em></h1><span class="ages">AGES<br>40+</span>
       <p class="standfirst">{len(ALL)} things. {(e(S["dateline"].rstrip(".")) + ".") if S.get("dateline") else ""}</p>{chips}</section>
     <div class="collection" data-filterable>
 {cards}
@@ -1162,6 +1168,8 @@ def build_404():
 
 FONT_FACES = [  # self-hosted (no Google Fonts request): family, file, weight, style
     ("Inter", "inter-latin-var.woff2", "100 900", "normal"),
+    ("Archivo Black", "archivo-black-latin-400-normal.woff2", "400", "normal"),
+    ("Anton", "anton-latin-400-normal.woff2", "400", "normal"),
     ("Newsreader", "newsreader-latin-400-normal.woff2", "400", "normal"),
     ("Newsreader", "newsreader-latin-400-italic.woff2", "400", "italic"),
     ("Newsreader", "newsreader-latin-500-normal.woff2", "500", "normal"),
@@ -1267,9 +1275,13 @@ def build_brand_images():
         sq = lambda n: src.resize((n, n), Image.LANCZOS)
         for n, name in ((512, "icon-512.png"), (192, "icon-192.png"), (180, "apple-touch-icon.png")):
             sq(n).save(os.path.join(OUT, name))
+        # brand/icon-small.png (optional): a simpler version for the tiny browser-tab sizes
+        sp = next((p for p in glob.glob(os.path.join(ROOT, "brand", "icon-small.*")) if p.lower().endswith(IMG_EXT)), None)
+        small = ImageOps.exif_transpose(Image.open(sp)).convert("RGB") if sp else src
+        sq_s = lambda n: small.resize((n, n), Image.LANCZOS)
         for n, name in ((48, "favicon-48.png"), (32, "favicon-32.png")):
-            rounded(sq(n * 4)).resize((n, n), Image.LANCZOS).save(os.path.join(OUT, name))
-        rounded(sq(256)).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+            rounded(sq_s(n * 4)).resize((n, n), Image.LANCZOS).save(os.path.join(OUT, name))
+        rounded(sq_s(256)).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
         IMG["brand_icon"] = True
     else:
         for s, name in ((512, "icon-512.png"), (192, "icon-192.png"), (180, "apple-touch-icon.png"), (48, "favicon-48.png"), (32, "favicon-32.png")):

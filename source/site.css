@@ -412,3 +412,74 @@ table.specs td.hot { color: var(--lume); }
 .modules.two-j .col-c { grid-column: 7 / span 6; }
 .modules.two-j .col-a { grid-column: 1 / span 6; }
 @media (max-width: 900px) { .modules.one .col-c { grid-template-columns: 1fr; } .modules.two-j .col-a, .modules.two-j .col-c { grid-column: 1 / -1; border-left: 0; padding-left: 0; } }
+
+/* ===== Collector theme: the banner's forest green, cream and burnt orange ===== */
+:root {
+  --abyss: #0a2a23; --abyss-2: #0e3329; --abyss-3: #134034; --rule: #26493f;
+  --lume: #f6eed8; --lume-soft: #efe7d1; --lume-mid: #c9c4ae; --lume-dim: #9fb0a3;
+  --orange: #e0592a; --orange-text: #ee7442; --ink: #061c17;
+  --block: "Archivo Black", "Inter", Arial, sans-serif;
+}
+.glow { color: var(--lume); text-shadow: none; }
+.timing b, .mathbox .res dd, .survey a:nth-child(4) .n { text-shadow: none; }
+/* the home title in the banner's block letters, with the orange drop shadow */
+.masthead h1 { font-family: var(--block); font-weight: 400; letter-spacing: -.02em; line-height: .9; text-shadow: .055em .055em 0 var(--orange); }
+.masthead .standfirst { font-family: var(--display); font-weight: 800; text-transform: uppercase; letter-spacing: .03em; display: inline-block; background: var(--lume); color: var(--ink); padding: 6px 14px 5px; box-shadow: 5px 5px 0 var(--orange); font-size: clamp(18px, 1.8vw, 24px); }
+.wordmark { font-family: var(--block); font-weight: 400; letter-spacing: .08em; }
+/* accents */
+nav.primary a:hover, nav.primary a[aria-current="page"] { color: var(--lume); border-bottom-color: var(--orange); }
+.sect-head h2.label, .page-head > .label, .w-head > .label { color: var(--orange-text); }
+.sect-head { border-top-color: var(--lume-dim); }
+a.inline { text-decoration-color: var(--orange); }
+a.inline:hover { color: var(--orange-text); }
+.vid .tag, .chip[aria-pressed="true"] { background: var(--orange); border-color: var(--orange); color: var(--ink); }
+.cta { color: var(--orange-text); }
+/* The desk: "Collect them all!" with the AGES 40+ sticker */
+.desk-head { position: relative; }
+.desk-head h1 { font-family: var(--block); font-weight: 400; letter-spacing: -.02em; text-shadow: .05em .05em 0 var(--orange); }
+.desk-head h1 em { font-style: normal; color: var(--orange); text-shadow: none; }
+.desk-head .ages { position: absolute; right: 0; top: clamp(24px, 4vw, 56px); width: 104px; height: 104px; display: grid; place-items: center; text-align: center; font-family: var(--display); font-weight: 900; font-size: 20px; line-height: .95; color: var(--lume);
+  background: var(--orange); clip-path: polygon(50% 0%,59% 10%,71% 3%,75% 15%,88% 12%,86% 25%,98% 29%,91% 40%,100% 50%,91% 60%,98% 71%,86% 75%,88% 88%,75% 85%,71% 97%,59% 90%,50% 100%,41% 90%,29% 97%,25% 85%,12% 88%,14% 75%,2% 71%,9% 60%,0% 50%,9% 40%,2% 29%,14% 25%,12% 12%,25% 15%,29% 3%,41% 10%); }
+@media (max-width: 700px) { .desk-head .ages { width: 76px; height: 76px; font-size: 15px; top: 10px; } }
+.masthead h1 { text-transform: uppercase; font-size: clamp(64px, 9.6vw, 150px); }
+.desk-head h1 { text-transform: uppercase; font-size: clamp(44px, 7.4vw, 108px); line-height: .95; }
+.vid .thumb .tag { background: var(--orange); color: var(--ink); font-weight: 600; }
+
+
+/* ===== Item cards: late-70s baseball-card fronts ===== */
+:root { --stock: #efe4c8; --c-watches: #e0592a; --c-toys: #6fae4f; --c-gear: #d9a441; }
+.c-watches { --cc: var(--c-watches); } .c-toys { --cc: var(--c-toys); } .c-gear { --cc: var(--c-gear); }
+.collection { gap: 36px var(--gap); }
+.watch-card { display: block; }
+.watch-card .card { background: var(--stock); padding: 7px; border-radius: 6px; box-shadow: 4px 5px 0 rgba(0,0,0,.42), inset 0 0 0 1px rgba(0,0,0,.08); transition: transform .12s ease, box-shadow .12s ease; }
+.watch-card:hover .card { transform: translate(-2px, -2px); box-shadow: 6px 8px 0 rgba(0,0,0,.45), inset 0 0 0 1px rgba(0,0,0,.08); }
+.watch-card .frame { position: relative; background: var(--cc); padding: 0 8px 10px; border-radius: 3px; }
+.watch-card .band { font-family: var(--block); font-size: clamp(15px, 1.55vw, 21px); line-height: 1; letter-spacing: -.01em; text-transform: uppercase; color: var(--ink); padding: 8px 2px 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.watch-card .plate .win { aspect-ratio: 4 / 5; border: 2px solid var(--ink); padding: 0; background: var(--abyss-3); overflow: hidden; }
+.watch-card .plate .win::before, .watch-card .plate .win::after { display: none; }
+.watch-card .plate img { width: 100%; height: 100%; object-fit: cover; }
+.watch-card:hover .win { border-color: var(--ink); }
+/* name plate breaking out over the bottom-left of the photo, round number badge bottom-right */
+.watch-card .np { position: relative; display: inline-block; max-width: calc(100% - 54px); margin: -30px 0 0 -2px; padding: 5px 10px 6px; background: var(--cc); border: 2px solid var(--ink); border-radius: 0 12px 0 0; color: var(--ink); }
+.watch-card .np small { display: block; font-family: var(--block); font-size: 11px; line-height: 1.1; text-transform: uppercase; letter-spacing: .02em; }
+.watch-card .np b { display: block; font-family: var(--block); font-weight: 400; font-size: clamp(14px, 1.35vw, 18px); line-height: 1.02; text-transform: uppercase; letter-spacing: -.01em; }
+.watch-card .pos { position: absolute; right: 9px; bottom: 9px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--stock); border: 2px solid var(--ink); font-family: var(--block); font-size: 14px; color: var(--ink); }
+.watch-card .meta { margin-top: 12px; display: grid; gap: 3px; }
+.watch-card .meta .ref { font-family: var(--mono); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--lume-dim); }
+.watch-card .meta .ref b { color: var(--orange-text); font-weight: 600; }
+.watch-card .meta .line { font-family: var(--text); font-style: italic; font-size: 15px; line-height: 1.35; color: var(--lume-mid); }
+@media (max-width: 900px) {
+  .watch-card .card { padding: 5px; } .watch-card .frame { padding: 0 6px 8px; }
+  .watch-card .band { font-size: 13px; padding: 6px 1px 5px; }
+  .watch-card .np { margin-top: -24px; padding: 4px 7px 5px; max-width: calc(100% - 40px); } .watch-card .np small { font-size: 9px; } .watch-card .np b { font-size: 12.5px; }
+  .watch-card .pos { width: 32px; height: 32px; font-size: 11px; right: 6px; bottom: 7px; }
+  .watch-card .meta .line { font-size: 14px; }
+}
+/* the specs on an item page are the back of the card */
+.w-main .specs { background: var(--stock); color: var(--ink); border: 8px solid var(--cc, var(--c-watches)); border-radius: 6px; box-shadow: 4px 5px 0 rgba(0,0,0,.42); border-collapse: separate; border-spacing: 0; width: 100%; }
+.w-main .specs caption { caption-side: top; text-align: left; background: var(--cc, var(--c-watches)); color: var(--ink); font-family: var(--block); font-size: 15px; letter-spacing: .01em; padding: 8px 12px 6px; border-radius: 6px 6px 0 0; }
+.w-main .specs th, .w-main .specs td { color: var(--ink); border-color: rgba(6,28,23,.18); padding-left: 12px; padding-right: 12px; }
+.w-main .specs th { color: #4d5e53; }
+.w-main .specs td.hot { color: var(--ink); font-weight: 600; }
+.watch-card .np b, .watch-card .np small { overflow-wrap: anywhere; }
+@media (max-width: 900px) { .watch-card .np b { font-size: 11.5px; } .watch-card .np { max-width: calc(100% - 38px); } }
