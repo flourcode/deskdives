@@ -217,8 +217,8 @@ table.specs td.hot { color: var(--lume); }
 @media (max-width: 560px) {
   body { font-size: 17px; }
   .bar { flex-direction: column; align-items: flex-start; gap: 2px; }
-  nav.primary { gap: 0; margin-left: -8px; }
-  nav.primary a { padding: 10px 8px 6px; }
+  nav.primary { gap: 0; margin-left: -7px; flex-wrap: wrap; }
+  nav.primary a { padding: 10px 7px 6px; }
   .survey a { padding: 4px 12px 18px; }
   .survey a:nth-child(odd) { padding-left: 0; }
   .survey p { font-size: 15px; }
@@ -387,3 +387,17 @@ table.specs td.hot { color: var(--lume); }
 .mine:hover { background: var(--abyss-3); }
 .g-back { margin: 10px 0 0; font-family: var(--display); font-size: 13px; color: var(--lume-dim); }
 @media (max-width: 700px) { .g-entry, .g-part { scroll-margin-top: 56px; } .g-facts div { grid-template-columns: 112px minmax(0, 1fr); } }
+
+/* broader desk: subline, filter chips, longer names on toy and gear pages */
+.masthead .subline { margin: 10px 0 0; max-width: 34ch; font-family: var(--text); font-style: italic; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.35; color: var(--lume-mid); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.chip { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--lume-mid); background: transparent; border: 1px solid var(--rule, #1f3a4d); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.chip span { color: var(--lume-dim); margin-left: 4px; }
+.chip:hover { border-color: var(--lume-dim); color: var(--lume); }
+.chip[aria-pressed="true"] { background: var(--lume); border-color: var(--lume); color: var(--abyss); }
+.chip[aria-pressed="true"] span { color: var(--abyss); }
+[data-filterable] > [hidden] { display: none; }
+.w-head h1.words { font-size: clamp(44px, 8vw, 120px); line-height: .92; letter-spacing: -0.04em; max-width: 14ch; }
+@media (max-width: 400px) { nav.primary { margin-left: -6px; } nav.primary a { padding: 10px 6px 6px; font-size: 13.5px; } }
+.thing-notes .body h3.label { margin: 26px 0 8px; }
+.thing-notes .body h3.label:first-child { margin-top: 0; }

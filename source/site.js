@@ -1,6 +1,13 @@
-// Desk Dives: click-to-play YouTube, share links.
+// Desk Dives: click-to-play YouTube, share links, The desk filters.
 (function () {
   document.addEventListener("click", function (e) {
+    var c = e.target.closest && e.target.closest("[data-filter]");
+    if (c) {
+      var f = c.getAttribute("data-filter");
+      document.querySelectorAll("[data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b === c ? "true" : "false"); });
+      document.querySelectorAll("[data-filterable] > [data-cat]").forEach(function (el) { el.hidden = !(f === "all" || el.getAttribute("data-cat") === f); });
+      return;
+    }
     var t = e.target.closest && e.target.closest("[data-yt]");
     if (t && t.getAttribute("data-yt")) {
       var id = t.getAttribute("data-yt");

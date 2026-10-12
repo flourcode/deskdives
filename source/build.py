@@ -4,6 +4,7 @@
 You never need to edit this file. Content lives in:
   site.json            site-wide settings
   watches/<name>/      one folder per watch: watch.json plus photos
+  toys/<name>/, gear/<name>/   one folder per thing: item.json plus photos
   videos.json          YouTube videos
   journal/*.md         journal entries
   about.md             the About page
@@ -45,6 +46,10 @@ NAME = S["name"]
 TAGLINE = S["tagline"]
 YT = (S.get("youtube") or "").strip()
 EMAIL = (S.get("email") or "").strip()
+# Categories besides watches. Each gets its menu link, page and filter once its first item is published.
+CATS = [("watches", "Watches", "Watch"), ("toys", "Toys", "Toy"), ("gear", "Gear", "Gear")]
+CAT_LABEL = {k: l for k, l, _ in CATS}
+CAT_ONE = {k: o for k, _, o in CATS}
 
 
 # ---------- tiny markdown ----------
@@ -229,13 +234,8 @@ def load_watches():
         w["title"] = f"{w.get('brand','')} {w.get('model','')}".strip()
         for k, v in (("take", []), ("likes", []), ("annoyances", []), ("key_numbers", []), ("specs", {}), ("captions", {})):
             w.setdefault(k, v)
-        imgs = sorted(f for f in os.listdir(folder) if f.lower().endswith(IMG_EXT))
-        main = next((f for f in imgs if os.path.splitext(f)[0].lower() == "main"), None)
-        figs = [f for f in imgs if f.lower().startswith("figure")]
-        rest = [f for f in imgs if f != main and f not in figs]
-        if not main and rest:
-            main, rest = rest[0], rest[1:]
-        w["main_file"], w["gallery_files"], w["figure_files"] = main, rest, figs
+        w["cat"] = "watches"
+        main = find_images(w)
         missing = [x for x, ok in (("a photo", main), ("a reference", (w.get("ref") or "").strip() not in ("", "TBD"))) if not ok]
         if missing:
             print(f"Hidden for now: watches/{slug} needs {' and '.join(missing)} before it shows on the site.")
@@ -247,12 +247,60 @@ def load_watches():
     return ws
 
 
+def find_images(w):
+    """main.jpg (or the first photo) is the big one; figure*.jpg are watercolors; the rest are gallery plates."""
+    folder = w["folder"]
+    imgs = sorted(f for f in os.listdir(folder) if f.lower().endswith(IMG_EXT))
+    main = next((f for f in imgs if os.path.splitext(f)[0].lower() == "main"), None)
+    figs = [f for f in imgs if f.lower().startswith("figure")]
+    rest = [f for f in imgs if f != main and f not in figs]
+    if not main and rest:
+        main, rest = rest[0], rest[1:]
+    w["main_file"], w["gallery_files"], w["figure_files"] = main, rest, figs
+    return main
+
+
+def load_things(cat):
+    """source/toys/<name>/item.json, source/gear/<name>/item.json: lighter pages than watches."""
+    out = []
+    for folder in sorted(glob.glob(os.path.join(ROOT, cat, "*"))):
+        slug = os.path.basename(folder)
+        if not os.path.isdir(folder) or slug.startswith(("_", ".")):
+            continue
+        jp = os.path.join(folder, "item.json")
+        if not os.path.exists(jp):
+            fail(f"{cat}/{slug} has no item.json. Copy one from {cat}/_template.")
+        t = load_json(jp)
+        if t.get("draft"):
+            continue
+        if not re.fullmatch(r"[a-z0-9-]+", slug):
+            fail(f"Folder name {cat}/{slug} should be lowercase letters, numbers and dashes only (e.g. godzilla-minus-one).")
+        t.update(slug=slug, folder=folder, cat=cat, url=f"/{cat}/{slug}/", title=(t.get("name") or "").strip())
+        for k, v in (("text", []), ("key_numbers", []), ("specs", {}), ("captions", {})):
+            t.setdefault(k, v)
+        main = find_images(t)
+        missing = [x for x, ok in (("a photo", main), ("a name", t["title"])) if not ok]
+        if missing:
+            print(f"Hidden for now: {cat}/{slug} needs {' and '.join(missing)} before it shows on the site.")
+            continue
+        out.append(t)
+    out.sort(key=lambda t: (t.get("order", 999), t["slug"]))
+    for i, t in enumerate(out):
+        t["no"] = f"{i + 1:02d}"
+    return out
+
+
+def slugify(t):
+    return re.sub(r"[^a-z0-9]+", "-", str(t).lower()).strip("-")
+
+
 def process_watch_images(w):
-    rel = f"images/watches/{w['slug']}"
+    cat = w.get("cat", "watches")
+    rel = f"images/{cat}/{w['slug']}"
     w["img"] = None
     if w["main_file"]:
         im = open_img(os.path.join(w["folder"], w["main_file"]))
-        base = f"{rel}/{w['slug']}-{w['brand'].lower()}-watch"
+        base = f"{rel}/{w['slug']}-{slugify(w.get('brand', ''))}-watch" if cat == "watches" else f"{rel}/{w['slug']}"
         w["srcset"], (_, w["iw"], w["ih"]) = widths(im, base, [400, 600, 800, 1200, 1600])
         w["img"] = pick(w["srcset"], 800)
         big = im.copy(); big.thumbnail((1600, 1600), Image.LANCZOS)
@@ -278,6 +326,10 @@ def process_watch_images(w):
         big = im.copy(); big.thumbnail((1800, 1800), Image.LANCZOS)
         url = save(big, f"{rel}/{os.path.splitext(f)[0]}.jpg")
         w["figures"].append(dict(url=url, w=big.size[0], h=big.size[1], caption=w["captions"].get(f, "Watercolor, " + S.get("author", ""))))
+
+
+def is_watch(t):
+    return t.get("cat", "watches") == "watches"
 
 
 # ---------- journal ----------
@@ -335,6 +387,10 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
     og = og or IMG["og-site"]
     cur = ' aria-current="page"'
     link = lambda key, href, label: f'<a href="{href}"{cur if nav == key else ""}>{label}</a>'
+    cat_links = "".join(link(c, f"/{c}/", CAT_LABEL[c]) for c in LIVE_CATS)
+    guides_nav = [g for g in GUIDES if g["meta"].get("nav_label")]
+    # The nickname guide stays in the menu until Toys, Gear and Journal make it crowded (it's always in the footer and on Watches).
+    show_guides = len(LIVE_CATS) + len(guides_nav) + (1 if POSTS else 0) + 2 <= 5
     yt_foot = f' · <a href="{e(YT)}" target="_blank" rel="me noopener">{e(S.get("youtube_label","YouTube"))}</a>' if YT else ""
     wall_foot = ' · <a href="/wallpapers/">Free wallpapers</a>' if WALLS else ""
     guide_foot = wall_foot + "".join(f' · <a href="{g["url"]}">{e(g["meta"].get("footer_label") or g["meta"].get("title", ""))}</a>' for g in GUIDES)
@@ -383,14 +439,14 @@ def page(path, title, description, body, nav="", og=None, og_alt="", og_type="we
     <div class="bar">
       <a class="wordmark" href="/">{e(NAME.upper())}</a>
       <nav class="primary" aria-label="Primary">
-        {link("watches", "/watches/", "Watches")}
-        {"".join(link("guide-" + g["slug"], g["url"], e(g["meta"]["nav_label"])) for g in GUIDES if g["meta"].get("nav_label"))}
+        {cat_links}
+        {"".join(link("guide-" + g["slug"], g["url"], e(g["meta"]["nav_label"])) for g in guides_nav) if show_guides else ""}
         {link("videos", "/videos/", "Videos")}
         {link("journal", "/journal/", "Journal") if POSTS else ""}
         {link("about", "/about/", "About")}
       </nav>
     </div>
-    <div class="dateline"><span>{len(WATCHES)} watch{"" if len(WATCHES) == 1 else "es"}{(" · " + e(S["dateline"])) if S.get("dateline") else ""}</span></div>
+    <div class="dateline"><span>{len(ALL)} thing{"" if len(ALL) == 1 else "s"} on the desk{(" · " + e(S["dateline"])) if S.get("dateline") else ""}</span></div>
   </header>
 </div>
 <main id="main" class="clip">
@@ -417,7 +473,7 @@ def plate(w, eager=False, sizes="(max-width: 900px) 46vw, 24vw", caption=True):
         srcset = ", ".join(f"{u} {x}w" for u, x in w["srcset"])
         load = 'fetchpriority="high"' if eager else 'loading="lazy"'
         img = (f'<img src="{w["img"]}" srcset="{srcset}" sizes="{sizes}" width="{w["iw"]}" height="{w["ih"]}" '
-               f'alt="{e(w["title"])} {e(w.get("ref","")) if w.get("ref") not in (None,"","TBD") else ""} watch" {load} decoding="async">')
+               f'alt="{e(alt_of(w))}" {load} decoding="async">')
         win = f'<div class="win">{img}</div>'
         cls = "plate"
     else:
@@ -426,6 +482,12 @@ def plate(w, eager=False, sizes="(max-width: 900px) 46vw, 24vw", caption=True):
     cap = (f'<figcaption><span><b>Plate {w["no"]}</b> · {e(w["title"])}</span><span>{"" if w.get("img") else "Photo to come"}</span></figcaption>'
            if caption else "")
     return f'<figure class="{cls}">{win}{cap}</figure>'
+
+
+def alt_of(t):
+    if is_watch(t):
+        return f"{t['title']} {t.get('ref','') if t.get('ref') not in (None,'','TBD') else ''} watch".replace("  ", " ")
+    return t["title"]
 
 
 def rank(w):
@@ -438,12 +500,27 @@ def ref_text(w):
     return f"REF {r}"
 
 
-def watch_card(w):
+def watch_card(w, mixed=False):
+    if not is_watch(w):
+        return thing_card(w, mixed)
     rk = rank(w)
     rk_html = f"<b>{rk} · WRIST TIME</b>" if rk == "P1" else (f"<span>{rk}</span>" if rk else "")
-    return f"""        <a class="watch-card" href="{w['url']}">
+    no = f"WATCH · NO. {w['no']}" if mixed else f"NO. {w['no']}"
+    return f"""        <a class="watch-card" href="{w['url']}" data-cat="watches">
           {plate(w, caption=False)}
-          <div class="meta"><span class="no"><span>NO. {w['no']}</span>{rk_html}</span><span class="name">{e(w['title'])}</span><span class="ref">{e(ref_text(w))}</span><span class="line">{e(w.get('line',''))}</span></div>
+          <div class="meta"><span class="no"><span>{no}</span>{rk_html}</span><span class="name">{e(w['title'])}</span><span class="ref">{e(ref_text(w))}</span><span class="line">{e(w.get('line',''))}</span></div>
+        </a>"""
+
+
+def thing_sub(t):
+    return " · ".join(x for x in [t.get("maker"), t.get("kind")] if x)
+
+
+def thing_card(t, mixed=False):
+    no = f"{CAT_ONE[t['cat']].upper()} · NO. {t['no']}" if mixed else f"NO. {t['no']}"
+    return f"""        <a class="watch-card" href="{t['url']}" data-cat="{t['cat']}">
+          {plate(t, caption=False)}
+          <div class="meta"><span class="no"><span>{no}</span></span><span class="name">{e(t['title'])}</span><span class="ref">{e(thing_sub(t))}</span><span class="line">{e(t.get('line',''))}</span></div>
         </a>"""
 
 
@@ -470,7 +547,7 @@ def video_card(v, big=False):
     big = big and not short
     thumb = v.get("poster") or f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
     poster_srcset = (' srcset="' + ", ".join(f"{u} {x}w" for u, x in v["poster_set"]) + '" sizes="(max-width: 600px) 80vw, 300px"') if v.get("poster_set") else ""
-    w_titles = ", ".join(e(W_BY[s]["title"]) for s in v.get("watches", []) if s in W_BY)
+    w_titles = ", ".join(e(ALL_BY[s]["title"]) for s in features(v) if s in ALL_BY)
     cls = "vid" + (" big" if big else "") + (" short" if short else "")
     link = f"https://www.youtube.com/shorts/{e(v['id'])}" if short else f"https://www.youtube.com/watch?v={e(v['id'])}"
     tc = f'<span class="tc">{e(v.get("length",""))}</span>' if v.get("length") else ""
@@ -480,6 +557,10 @@ def video_card(v, big=False):
           <h3><a href="{link}" target="_blank" rel="noopener">{e(v['title'])}</a></h3>
           <p>{e(v.get('summary',''))}{(' · Features ' + w_titles) if w_titles else ''}</p>
         </div>"""
+
+
+def features(v):
+    return list(v.get("watches", [])) + list(v.get("things", []))
 
 
 def share_links(url, title, media, kind, item):
@@ -496,11 +577,24 @@ def money(n):
 
 # ---------- pages ----------
 def build_home():
-    f = W_BY.get(S.get("featured")) or (WATCHES[0] if WATCHES else None)
+    f = W_BY.get(S.get("featured")) or ALL_BY.get(S.get("featured")) or (WATCHES[0] if WATCHES else None)
+    if IMG.get("hero"):   # brand/hero.jpg: a photo of the desk itself
+        f = IMG["hero"]
     hero_plate = ""
     if f:
         hero_plate = f'<a class="hero-link" href="{f["url"]}">{plate(f, eager=True, sizes="(max-width: 900px) 92vw, 46vw")}</a>'
-    cards = "\n".join(watch_card(w) for w in WATCHES[:8])
+    desk = [ALL_BY[s] for s in (S.get("on_desk") or []) if s in ALL_BY] or WATCHES[:6]
+    cards = "\n".join(watch_card(w, mixed=True) for w in desk[:8])
+    # Latest from the desk: anything with an "added" date, newest first
+    dated = sorted((t for t in ALL if re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(t.get("added") or "")) and t not in desk), key=lambda t: t["added"], reverse=True)[:4]  # skips what's already in the row above
+    latest = ""
+    if len(dated) >= 2:
+        latest = f"""<section class="sect" aria-labelledby="new-h">
+      <div class="sect-head"><h2 id="new-h" class="label">Latest from the desk</h2><a href="/desk/">Everything →</a></div>
+      <div class="collection">
+{chr(10).join(watch_card(t, mixed=True) for t in dated)}
+      </div>
+    </section>"""
     # modules
     if POSTS:
         jl = "".join(f'<li><span class="label">{e(p["section"])}</span><a href="{p["url"]}">{e(p["title"])}</a></li>' for p in POSTS[:4])
@@ -513,8 +607,8 @@ def build_home():
         video_mod = '<div class="vid"><div class="thumb static"><span class="play"></span></div><p class="empty-note">The first new video is coming soon.</p></div>'
     journal_col = ""
     if POSTS:
-        journal_col = f"""<div class="col-a"><span class="label">Only on {e(NAME)}</span><h2 class="mod-head">From the journal</h2>
-        <p class="mod-sub">Occasional writing, mostly about watches I already own.</p>{journal_mod}
+        journal_col = f"""<div class="col-a"><span class="label">Only on {e(NAME)}</span><h2 class="mod-head">{e(S.get("journal_title") or "From the journal")}</h2>
+        <p class="mod-sub">{e(S.get("journal_sub") or "Occasional writing.")}</p>{journal_mod}
         <a class="more-link" href="/journal/">All entries →</a></div>"""
     ow = W_BY.get(S.get("on_wrist"))
     spot = ""
@@ -533,35 +627,38 @@ def build_home():
       <div class="masthead">
         <h1 class="glow">{e(NAME)}</h1>
         <p class="standfirst">{('<i>' + e(S['kicker']) + '</i> ') if S.get('kicker') else ''}{e(TAGLINE)}</p>
+        {f'<p class="subline">{e(S["subline"])}</p>' if S.get("subline") else ""}
       </div>
       {hero_plate}
     </section>
     <section class="sect" aria-labelledby="col-h">
-      <div class="sect-head"><h2 id="col-h" class="label">The collection · {len(WATCHES):02d}</h2><a href="/watches/">All watches →</a></div>
+      <div class="sect-head"><h2 id="col-h" class="label">On the desk now</h2><a href="/desk/">The whole desk · {len(ALL)} things →</a></div>
       <div class="collection">
 {cards}
       </div>
     </section>
+    {latest}
     <section class="grid modules{'' if POSTS else ' two'}" aria-label="More">
       {journal_col}
       <div class="col-b"><span class="label">On YouTube</span><h2 class="mod-head">{'Latest video' if len(VIDEOS) <= 1 else 'Latest videos'}</h2>
-        <p class="mod-sub">Wrist shots, lume tests and honest counts.</p>{video_mod}
+        <p class="mod-sub">{e(S.get("videos_sub") or "")}</p>{video_mod}
         <a class="more-link" href="/videos/">All videos →</a></div>
       <div class="col-c">{spot}{sub}</div>
     </section>
   </div>"""
-    items = {"@type": "ItemList", "name": "The collection", "itemListElement": [
-        {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{w['url']}", "name": w["title"]} for i, w in enumerate(WATCHES)]}
-    write("/", page("/", f"{NAME} · Seiko Dive Watches, Specs and Honest Notes",
+    items = {"@type": "ItemList", "name": "On the desk now", "itemListElement": [
+        {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{w['url']}", "name": w["title"]} for i, w in enumerate(desk)]}
+    write("/", page("/", S.get("home_title") or f"{NAME} · Dive Watches, Toys and Desk Gear",
                     S.get("description") or TAGLINE,
-                    body, schema=ld(WEBSITE, PERSON, items), og_alt=f"{NAME} dive watch collection"))
+                    body, schema=ld(WEBSITE, PERSON, items), og_alt=f"{NAME}: things on the desk"))
 
 
 def build_watches_index():
     cards = "\n".join(watch_card(w) for w in WATCHES)
     body = f"""  <div class="wrap">
     <section class="page-head"><span class="label">The collection</span><h1 class="glow">Watches</h1>
-      <p class="standfirst">{len(WATCHES)} watches, numbered in the order they arrived. Specs, photos and honest notes on each.</p></section>
+      <p class="standfirst">{(e(S["watch_tagline"]) + " ") if S.get("watch_tagline") else ""}{len(WATCHES)} watches, numbered in the order they arrived, with specs, photos and honest notes on each.</p>
+      {"".join(f'<p class="how">Wondering why a Seiko is called a Turtle? <a class="inline" href="{g["url"]}">{e(g["meta"].get("footer_label") or g["meta"].get("title",""))} →</a></p>' for g in GUIDES[:1])}</section>
     <div class="collection">
 {cards}
     </div>
@@ -677,12 +774,118 @@ def build_watch(w, i):
                          schema=schema))
 
 
+def build_category(cat):
+    items = THINGS[cat]
+    intro = (S.get("sections") or {}).get(cat, "")
+    cards = "\n".join(thing_card(t) for t in items)
+    body = f"""  <div class="wrap">
+    <section class="page-head"><span class="label">On the desk</span><h1 class="glow">{e(CAT_LABEL[cat])}</h1>
+      <p class="standfirst">{(e(intro) + " ") if intro else ""}{len(items)} so far.</p></section>
+    <div class="collection">
+{cards}
+    </div>
+  </div>"""
+    lst = {"@type": "ItemList", "name": CAT_LABEL[cat], "itemListElement": [
+        {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{t['url']}", "name": t["title"]} for i, t in enumerate(items)]}
+    write(f"/{cat}/", page(f"/{cat}/", f"{CAT_LABEL[cat]} · {NAME}", f"{CAT_LABEL[cat]} on the {NAME} desk. {intro}".strip(), body, nav=cat,
+                           schema=ld({"@type": "CollectionPage", "url": f"{SITE}/{cat}/", "name": CAT_LABEL[cat], "mainEntity": lst},
+                                     crumbs([("Home", "/"), (CAT_LABEL[cat], f"/{cat}/")]))))
+
+
+def build_thing(t, i):
+    items = THINGS[t["cat"]]
+    prev, nxt = (items[i - 1] if i else None), (items[i + 1] if i + 1 < len(items) else None)
+    cat, label = t["cat"], CAT_LABEL[t["cat"]]
+    blank = lambda v: v is None or str(v).strip() in ("", "TBD")
+    rows = [(k, v) for k, v in t["specs"].items() if not blank(v)]
+    if not blank(t.get("acquired")):
+        rows.append(("Acquired", t["acquired"]))
+    spec_rows = "".join(f'<tr><th scope="row">{e(k)}</th><td>{e(v)}</td></tr>' for k, v in rows)
+    specs = f'<table class="specs"><caption class="label">A few details</caption>{spec_rows}</table>' if rows else ""
+    kn = "".join(f'<div><b>{e(v)}</b><span class="label">{e(l)}</span></div>' for v, l in t["key_numbers"])
+    timing = f'<section class="timing" style="--n:{len(t["key_numbers"])}" aria-label="Key numbers">{kn}</section>' if t["key_numbers"] else ""
+    share = share_links(SITE + t["url"], f"{t['title']} · {NAME}", SITE + (t.get("img_plain") or IMG["og-site"]), cat, t["slug"])
+    # Every toy and gear page has the same small structure: What it is, Why it's on the desk, A few details (the table), Would I buy it again?
+    paras = lambda v: [v] if isinstance(v, str) else list(v or [])
+    what = "".join(f"<p>{inline(p)}</p>" for p in paras(t.get("what")) if str(p).strip())
+    why = "".join(f"<p>{inline(p)}</p>" for p in (paras(t.get("why")) or paras(t.get("text"))) if str(p).strip())
+    verdict = ""
+    if t.get("verdict"):
+        vnote = "<p>" + e(t["verdict_note"]) + "</p>" if t.get("verdict_note") else ""
+        verdict = f'<div class="verdict"><h3 class="label">Would I buy it again?</h3><b class="glow">{e(t["verdict"])}</b>{vnote}</div>'
+    parts = (f'<h3 class="label">What it is</h3>{what}' if what else "") + (f'<h3 class="label">Why it\'s on the desk</h3>{why}' if why else "") + verdict
+    notes = f"""<section class="grid take thing-notes">
+      <div class="col-l"><h2>On the desk</h2></div>
+      <div class="col-r body">{parts}</div>
+    </section>""" if parts else ""
+    gal = "".join(f"""<figure class="plate"><a class="win" href="{g['full']}"><img src="{g['thumb']}" srcset="{g['tset']}" sizes="(max-width: 560px) 46vw, 300px" width="{g['w']}" height="{g['h']}" alt="{e(t['title'])}: {e(g['caption'])}" loading="lazy" decoding="async"></a>
+          <figcaption><span><b>Plate {t['no']}.{j + 2}</b> · {e(g['caption'])}</span></figcaption></figure>""" for j, g in enumerate(t["gallery"]))
+    vid_html = "".join(video_card(v) for v in VIDEOS if t["slug"] in features(v))
+    more = f"""<section class="sect"><div class="sect-head"><h2 class="label">More plates and videos</h2></div>
+      <div class="gallery">{gal}{vid_html}</div></section>""" if (gal or vid_html) else ""
+    figs = "".join(f"""<section class="grid fig"><div class="txt"><span class="label">Fig.</span><p><i>From the sketchbook:</i> {e(f['caption'])}</p></div>
+      <figure class="art"><img src="{f['url']}" width="{f['w']}" height="{f['h']}" alt="Watercolor of the {e(t['title'])}" loading="lazy" decoding="async"></figure></section>""" for f in t["figures"])
+    find = ""
+    if t.get("affiliate_url"):
+        find = f'<div class="find"><a href="{e(t["affiliate_url"])}" target="_blank" rel="sponsored noopener">{e(t.get("affiliate_label") or "Where to find one")} →</a><span>If you buy through this link, I may earn a small commission.</span></div>'
+    pl = f'<a href="{prev["url"]}"><span class="label">← No. {prev["no"]}</span>{e(prev["title"])}</a>' if prev else f'<a href="/{cat}/"><span class="label">← {e(label)}</span>All {e(label.lower())}</a>'
+    nl = f'<a class="next" href="{nxt["url"]}"><span class="label">No. {nxt["no"]} →</span>{e(nxt["title"])}</a>' if nxt else f'<a class="next" href="/desk/"><span class="label">The desk →</span>Everything else</a>'
+    sub = " · ".join(x for x in [CAT_ONE[cat], t.get("maker"), t.get("kind")] if x)
+    words = t["title"].split()
+    h1_cls = " words" if len(words) > 2 or len(t["title"]) > 14 else (" xlong" if max(len(x) for x in words) > 11 else (" long" if max(len(x) for x in words) > 8 else ""))
+    body = f"""  <div class="wrap">
+    <section class="w-head">
+      <span class="label">No. {t['no']} · {e(sub)}</span>
+      <h1 class="glow{h1_cls}">{e(t['title'])}</h1>
+      {f'<p class="nick">{e(t.get("line",""))}</p>' if t.get("line") else ""}
+    </section>
+    {timing}
+    <section class="grid w-main">
+      {plate(t, eager=True, sizes="(max-width: 900px) 92vw, 55vw")}
+      <aside class="w-side">
+        {specs}
+        {share}
+      </aside>
+    </section>
+    {notes}
+    {figs}
+    {more}
+    {find}
+    <nav class="pager" aria-label="More {e(label.lower())}">{pl}{nl}</nav>
+  </div>"""
+    what_txt = plain(" ".join(str(x) for x in paras(t.get("what")))) or t.get("line", "")
+    desc = f"{t['title']}{(' (' + t['maker'] + ')') if t.get('maker') else ''}: {what_txt or 'On the ' + NAME + ' desk.'}"[:300]
+    trail = crumbs([("Home", "/"), (label, f"/{cat}/"), (t["title"], t["url"])])
+    write(t["url"], page(t["url"], f"{t['title']} · {label} · {NAME}", desc, body, nav=cat, og=t.get("og"), og_alt=t["title"], og_type="article",
+                         schema=ld(trail)))
+
+
+def build_desk():
+    chips = ""
+    if len(LIVE_CATS) > 1:
+        chips = '<div class="chips" role="group" aria-label="Show">' + '<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>' + str(len(ALL)) + '</span></button>' + \
+            "".join(f'<button type="button" class="chip" data-filter="{c}" aria-pressed="false">{e(CAT_LABEL[c])} <span>{len(WATCHES) if c == "watches" else len(THINGS[c])}</span></button>' for c in LIVE_CATS) + "</div>"
+    cards = "\n".join(watch_card(t, mixed=True) for t in ALL)
+    body = f"""  <div class="wrap">
+    <section class="page-head"><span class="label">Everything</span><h1 class="glow">The desk</h1>
+      <p class="standfirst">{len(ALL)} things. {(e(S["dateline"].rstrip(".")) + ".") if S.get("dateline") else ""}</p>{chips}</section>
+    <div class="collection" data-filterable>
+{cards}
+    </div>
+  </div>"""
+    lst = {"@type": "ItemList", "name": "The desk", "itemListElement": [
+        {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{t['url']}", "name": t["title"]} for i, t in enumerate(ALL)]}
+    write("/desk/", page("/desk/", f"The Desk · Everything in the Collection · {NAME}", f"Everything on the {NAME} desk: {len(ALL)} watches, toys and other things, with photos and notes.",
+                         body, nav="desk", schema=ld({"@type": "CollectionPage", "url": f"{SITE}/desk/", "name": "The desk", "mainEntity": lst},
+                                                     crumbs([("Home", "/"), ("The desk", "/desk/")]))))
+
+
 def build_videos():
     if VIDEOS:
         grid = "\n".join(video_card(v, big=(i == 0)) for i, v in enumerate(VIDEOS))
     else:
         grid = '<div class="vid"><div class="thumb static"><span class="play"></span></div><p class="empty-note">The first new video is coming soon.</p></div>'
-    yt = f'<p class="standfirst">New videos on <a class="inline" href="{e(YT)}" target="_blank" rel="noopener">YouTube</a>. Every video is listed here with the watches it features.</p>' if YT else '<p class="standfirst">Wrist shots, lume tests and honest counts. The channel is coming back.</p>'
+    yt = f'<p class="standfirst">New videos on <a class="inline" href="{e(YT)}" target="_blank" rel="noopener">YouTube</a>. Every video is listed here with the things it features.</p>' if YT else '<p class="standfirst">' + e(S.get("videos_sub") or "") + '</p>'
     body = f"""  <div class="wrap">
     <section class="page-head"><span class="label">On YouTube</span><h1 class="glow">Videos</h1>{yt}</section>
     <div class="video-grid">{grid}</div>
@@ -690,7 +893,7 @@ def build_videos():
     nodes = [{"@type": "VideoObject", "name": v["title"], "description": v.get("summary") or v["title"],
               "thumbnailUrl": (SITE + v["poster_jpg"]) if v.get("poster_jpg") else f"https://i.ytimg.com/vi/{v['id']}/hqdefault.jpg", "uploadDate": v.get("date") or TODAY,
               "embedUrl": f"https://www.youtube-nocookie.com/embed/{v['id']}", "contentUrl": (f"https://www.youtube.com/shorts/{v['id']}" if v.get("short") else f"https://www.youtube.com/watch?v={v['id']}")} for v in VIDEOS]
-    write("/videos/", page("/videos/", f"Videos · Dive Watches on YouTube · {NAME}", f"{NAME} videos: wrist shots, lume tests and honest notes on Seiko and Citizen dive watches.",
+    write("/videos/", page("/videos/", f"Videos · Watches and Desk Things on YouTube · {NAME}", f"{NAME} videos: {S.get('videos_sub') or 'watches and other things on the desk'}",
                            body, nav="videos", schema=ld(*nodes, crumbs([("Home", "/"), ("Videos", "/videos/")]))))
 
 
@@ -702,10 +905,10 @@ def build_journal():
         lst = '<p class="empty-note">The first entry is on its way.</p>'
     body = f"""  <div class="wrap">
     <section class="page-head"><span class="label">Only on {e(NAME)}</span><h1 class="glow">Journal</h1>
-      <p class="standfirst">Occasional writing. Straps, old catalogs, and why I keep buying the same watch.</p></section>
+      <p class="standfirst">{e(S.get("journal_sub") or "Occasional writing.")}</p></section>
     {lst}
   </div>"""
-    write("/journal/", page("/journal/", f"Journal · {NAME}", f"Occasional writing about dive watches from {NAME}.", body, nav="journal",
+    write("/journal/", page("/journal/", f"Journal · {NAME}", f"{S.get('journal_sub') or 'Occasional writing'} From {NAME}.", body, nav="journal",
                             schema=ld(crumbs([("Home", "/"), ("Journal", "/journal/")]))))
     for i, p in enumerate(POSTS):
         newer, older = (POSTS[i - 1] if i else None), (POSTS[i + 1] if i + 1 < len(POSTS) else None)
@@ -934,7 +1137,7 @@ def build_redirects():
 
 def build_404():
     body = """  <div class="wrap"><section class="page-head"><span class="label">404</span><h1 class="glow">Too deep</h1>
-    <p class="standfirst">That page doesn't exist. The watches are all <a class="inline" href="/watches/">here</a>.</p></section></div>"""
+    <p class="standfirst">That page doesn't exist. Everything is <a class="inline" href="/desk/">on the desk</a>.</p></section></div>"""
     write("/404.html", page("/404.html", f"Page not found · {NAME}", "This page could not be found.", body).replace(
         '<meta name="robots" content="index, follow, max-image-preview:large">', '<meta name="robots" content="noindex">'))
 
@@ -973,7 +1176,8 @@ def build_static():
     os.makedirs(os.path.join(OUT, "assets"), exist_ok=True)
     for n in ("site.css", "site.js", "analytics.js"):
         shutil.copy(os.path.join(ROOT, n), os.path.join(OUT, "assets", n))
-    urls = [("/", 1.0, None), ("/watches/", 0.9, None)] + [(w["url"], 0.8, w) for w in WATCHES] + \
+    urls = [("/", 1.0, None), ("/desk/", 0.8, None), ("/watches/", 0.9, None)] + [(w["url"], 0.8, w) for w in WATCHES] + \
+           [(u, 0.8, None) for c in LIVE_CATS if c != "watches" for u in [f"/{c}/"]] + [(t["url"], 0.7, t) for c in LIVE_CATS if c != "watches" for t in THINGS[c]] + \
            [(g["url"], 0.8, None) for g in GUIDES] + [("/videos/", 0.6, None)] + ([("/wallpapers/", 0.6, None)] if WALLS else []) + ([("/journal/", 0.6, None)] if POSTS else []) + [(p["url"], 0.6, None) for p in POSTS] + [("/about/", 0.5, None)]
     out = ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">']
     for u, pr, w in urls:
@@ -1007,12 +1211,16 @@ Allow: /
 
 Sitemap: {SITE}/sitemap.xml
 """)
-    L = [f"# {NAME}", "", f"> {TAGLINE} A personal dive watch collection by {S.get('author','')}: mostly Seiko, some Omega and other Swiss and German watches, a few vintage pieces. Each watch page has specs, photos, videos and an honest verdict.", "",
-         "## Pages", "", f"- [Watches]({SITE}/watches/): the full collection", f"- [Videos]({SITE}/videos/): YouTube videos", ] + [f"- [{g['meta'].get('title','')}]({SITE}{g['url']}): {g['meta'].get('description','')}" for g in GUIDES] + ([f"- [Wallpapers]({SITE}/wallpapers/): free phone wallpapers"] if WALLS else []) + [f"- [About]({SITE}/about/)", "", "## Watches", ""]
+    L = [f"# {NAME}", "", f"> {TAGLINE} {S.get('subline','')} A personal collection by {S.get('author','')}, anchored by dive watches (mostly Seiko, some Omega and other Swiss and German watches, a few vintage pieces), plus toys, gadgets and desk gear. Watch pages have specs, photos, videos and an honest verdict.", "",
+         "## Pages", "", f"- [The desk]({SITE}/desk/): everything", f"- [Watches]({SITE}/watches/): the watch collection"] + \
+        [f"- [{CAT_LABEL[c]}]({SITE}/{c}/)" for c in LIVE_CATS if c != "watches"] + [f"- [Videos]({SITE}/videos/): YouTube videos", ] + [f"- [{g['meta'].get('title','')}]({SITE}{g['url']}): {g['meta'].get('description','')}" for g in GUIDES] + ([f"- [Wallpapers]({SITE}/wallpapers/): free phone wallpapers"] if WALLS else []) + [f"- [About]({SITE}/about/)", "", "## Watches", ""]
     for w in WATCHES:
         bits = [w.get("ref") if w.get("ref") not in (None, "", "TBD") else None, w["specs"].get("Caliber") if w["specs"].get("Caliber") not in (None, "TBD") else None,
                 w["specs"].get("Case") if w["specs"].get("Case") not in (None, "TBD") else None, ("Verdict: " + w["verdict"]) if w.get("verdict") else None]
         L.append(f"- [No. {w['no']} {w['title']}]({SITE}{w['url']})" + (": " + "; ".join(b for b in bits if b) if any(bits) else ""))
+    for c in LIVE_CATS:
+        if c != "watches":
+            L += ["", f"## {CAT_LABEL[c]}", ""] + [f"- [{t['title']}]({SITE}{t['url']})" + (f": {t['line']}" if t.get("line") else "") for t in THINGS[c]]
     if POSTS:
         L[L.index(f"- [About]({SITE}/about/)")] = f"- [Journal]({SITE}/journal/): occasional writing\n- [About]({SITE}/about/)"
         L += ["", "## Journal", ""] + [f"- [{p['title']}]({SITE}{p['url']}) ({p['date'].isoformat()})" for p in POSTS]
@@ -1022,7 +1230,7 @@ Sitemap: {SITE}/sitemap.xml
     open(os.path.join(OUT, "site.webmanifest"), "w").write(json.dumps({"name": NAME, "short_name": NAME, "start_url": "/", "display": "browser",
         "background_color": "#06121c", "theme_color": "#06121c",
         "icons": [{"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"}]}, indent=2))
-    open(os.path.join(OUT, "humans.txt"), "w").write(f"Watches and words: {S.get('author','')}\nType: Inter, Newsreader, IBM Plex Mono\n")
+    open(os.path.join(OUT, "humans.txt"), "w").write(f"Watches, toys and words: {S.get('author','')}\nType: Inter, Newsreader, IBM Plex Mono\n")
 
 
 def build_brand_images():
@@ -1033,9 +1241,18 @@ def build_brand_images():
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#06121c"/>'
         '<circle cx="32" cy="32" r="22" fill="none" stroke="#dceab9" stroke-width="5.4"/>'
         '<path d="M23.7 13.2h16.6L32 25.7z" fill="#dceab9"/></svg>')
-    # default share image: featured watch if it has a photo, otherwise the bezel mark
+    # the home page photo: brand/hero.jpg if there is one
+    hp_ = next((p for p in glob.glob(os.path.join(ROOT, "brand", "hero.*")) if p.lower().endswith(IMG_EXT)), None)
+    if hp_:
+        im = open_img(hp_)
+        hset, (_, hw, hh) = widths(im, "images/desk-dives-desk", [400, 600, 800, 1200, 1600])
+        IMG["hero"] = {"img": pick(hset, 800), "srcset": hset, "iw": hw, "ih": hh, "no": "00", "url": "/desk/", "cat": "brand",
+                       "title": S.get("hero_caption") or "The desk"}
+    # default share image: the desk photo, else the featured watch, else the bezel mark
     f = W_BY.get(S.get("featured"))
-    if f and f.get("img"):
+    if hp_:
+        IMG["og-site"] = og_card(open_img(hp_), "images/og/desk-dives.jpg")
+    elif f and f.get("img"):
         IMG["og-site"] = og_card(open_img(os.path.join(f["folder"], f["main_file"])), "images/og/desk-dives.jpg")
     else:
         card = Image.new("RGB", (1200, 630), ABYSS)
@@ -1065,7 +1282,15 @@ if __name__ == "__main__":
     if not WATCHES:
         fail("There are no watches. Add at least one folder in source/watches.")
     W_BY = {w["slug"]: w for w in WATCHES}
-    for w in WATCHES:
+    THINGS = {c: load_things(c) for c, _, _ in CATS if c != "watches"}
+    LIVE_CATS = ["watches"] + [c for c, _, _ in CATS if c != "watches" and THINGS[c]]
+    ALL = WATCHES + [t for c in LIVE_CATS if c != "watches" for t in THINGS[c]]
+    ALL_BY = {}
+    for t in ALL:
+        if t["slug"] in ALL_BY:
+            fail(f"Two folders are both named '{t['slug']}' ({ALL_BY[t['slug']]['cat']} and {t['cat']}). Rename one; folder names must be unique across watches, toys and gear.")
+        ALL_BY[t["slug"]] = t
+    for w in ALL:
         process_watch_images(w)
     VD = load_json(os.path.join(ROOT, "videos.json"))
     VIDEOS = []
@@ -1082,19 +1307,25 @@ if __name__ == "__main__":
             v["poster"] = pick(v["poster_set"], 540)
         VIDEOS.append(v)
     for v in VIDEOS:
-        for s in v.get("watches", []):
-            if s not in W_BY:
-                print(f"Note: video '{v['title']}' lists watch '{s}', which has no folder. Ignoring that link.")
+        for s in features(v):
+            if s not in ALL_BY:
+                print(f"Note: video '{v['title']}' lists '{s}', which isn't showing on the site. Ignoring that link.")
     POSTS = load_journal()
     WALLS = load_wallpapers()
     GUIDES = load_guides()
     GUIDE_LINKS = guide_links()
     build_brand_images()
-    build_home(); build_watches_index()
+    build_home(); build_watches_index(); build_desk()
     for i, w in enumerate(WATCHES):
         build_watch(w, i)
+    for c in LIVE_CATS:
+        if c != "watches":
+            build_category(c)
+            for i, t in enumerate(THINGS[c]):
+                build_thing(t, i)
     build_videos(); build_journal(); build_wallpapers(); build_guides(); build_about(); build_404(); build_static(); build_redirects()
     nv, np_ = len(VIDEOS), len(POSTS)
     v_word = "video" if nv == 1 else "videos"
     p_word = "journal entry" if np_ == 1 else "journal entries"
-    print(f"Built {len(WATCHES)} watches, {nv} {v_word}, {np_} {p_word} into {OUT}")
+    extra = "".join(", " + str(len(THINGS[c])) + " " + (CAT_ONE[c].lower() if len(THINGS[c]) == 1 else c) for c in LIVE_CATS if c != "watches")
+    print(f"Built {len(WATCHES)} watches{extra}, {nv} {v_word}, {np_} {p_word} into {OUT}")

@@ -1,6 +1,6 @@
 # deskdives.com
 
-Nobody in the meeting knows it's rated to 300 meters. You do.
+Things on My Desk. Watches, toys, gadgets, and whatever else followed me home.
 
 You run this site entirely from GitHub. You don't need to install anything or edit code. Every time you commit a change, AWS Amplify rebuilds the whole site in about two minutes: every page, image size, share preview, sitemap and search data.
 
@@ -14,6 +14,10 @@ source/
       main.jpg      the big photo
       dial.jpg ...  any other photos become gallery plates
       figure.jpg    optional watercolor
+  toys/             one folder per toy (Godzilla, Star Wars, LEGO...)
+    _template/      copy this to add one (never published)
+  gear/             one folder per piece of gear (pens, keyboards, mugs...)
+    _template/
   videos.json       your YouTube videos, one entry each
   journal/          journal entries, one text file each
     images/         photos used in journal entries
@@ -106,6 +110,43 @@ Specs left as "TBD" or empty are skipped, and so is `acquired` until you fill it
 
 Keep the quotes, commas and square brackets as they are. Text in the take, likes and annoyances can use `**bold**`, `*italic*` and `[links](https://...)`.
 
+## Add a toy or a piece of gear
+
+Toys and gear get lighter pages than watches, and every one has the same four parts, so a mug and a fountain pen feel like part of the same site: **What it is**, **Why it's on the desk**, **A few details** (the table) and **Would I buy it again?**
+
+1. On GitHub, open `source/toys/_template/item.json` (or `source/gear/_template/item.json`) and copy everything in it.
+2. **Add file → Create new file**, name it `source/toys/godzilla-minus-one/item.json` with your own folder name (lowercase, dashes), paste, edit, and commit.
+3. Upload photos into the new folder, the same way as for a watch: `main.jpg` is the big one, the rest become gallery plates.
+
+It shows on the site once it has a `name` and a photo. Every other field is optional and hidden when empty:
+
+```json
+"order": 1,                     number within Toys: No. 01
+"added": "2026-10-12",          the day it joined the desk, for Latest from the desk
+"name": "Godzilla Minus One",   the headline
+"maker": "S.H. MonsterArts",
+"kind": "Figure",
+"line": "One dry sentence.",
+"what": "What it is, in a sentence or two.",
+"why": ["Why it's on the desk.", "Another paragraph."],
+"specs": { "Height": "16 cm" }, A few details: any rows you want
+"acquired": "2024",
+"verdict": "Yes.",              Would I buy it again?
+"verdict_note": "Probably two.",
+"captions": {},
+"affiliate_url": ""
+```
+
+The first toy turns on the **Toys** menu link, the Toys page and the Toys filter on The desk; the same goes for gear. Folder names have to be unique across watches, toys and gear, because a video can feature any of them: in videos.json, list them under `"things": ["godzilla-minus-one"]` (or keep using `"watches"`; either works).
+
+The menu holds five links. Once Toys and Gear are both showing, Nicknames moves out of the menu to keep it on one line on phones. It stays in the footer and at the top of the Watches page.
+
+## The desk and the home page
+
+- **deskdives.com/desk** lists everything, with filter buttons for Watches, Toys and Gear (they appear once a category has something in it).
+- **On the desk now** on the home page is `on_desk` in site.json: a list of folder names, from any category, in the order you want. Swap them as things come and go. Mixing categories matters: a row of only watches makes the site read as a watch site.
+- **Latest from the desk** on the home page shows the four newest things that have an `added` date (watches can have one too: add `"added": "2026-10-12"` to watch.json). It appears once two things have a date.
+
 ## Add a video
 
 Open `source/videos.json`, click the pencil, and add an entry at the top of the list:
@@ -156,8 +197,10 @@ The guide at deskdives.com/seiko-nicknames lives in `source/guides/seiko-nicknam
 
 ## Other settings in site.json
 
-- `tagline` is the big line on the home page. `description` is what Google and link previews show for the home page. `dateline` is the small line under the masthead, after the watch count.
-- `featured` is the watch shown large on the home page, and its photo becomes the site's default share image. `on_wrist` is the "On the wrist this week" watch. Both use folder names.
+- `tagline` and `subline` are the big lines on the home page. `watch_tagline` opens the Watches page. `description` is what Google and link previews show for the home page, and `home_title` is the home page's title in Google. `dateline` is the small line under the masthead, after the count of things.
+- `videos_sub` and `journal_sub` are the one-line intros for videos and the journal. `sections` holds the intro line for the Toys and Gear pages.
+- **The big home page photo** is `source/brand/hero.jpg`, a photo of the desk itself, with `hero_caption` under it. It's also the picture that shows when someone shares the home page. To change it, upload a new hero.jpg. Without one, the home page shows `featured` instead.
+- `featured` is the watch (or toy or gear) shown large on the home page when there's no hero.jpg, and its photo becomes the site's default share image. `on_wrist` is the "On the wrist this week" watch. Both use folder names.
 - `benchmark` is the Rolex price used in The math. Update `price` and `note` when Rolex changes its prices.
 
 ## The About page

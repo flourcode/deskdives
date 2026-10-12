@@ -1,10 +1,12 @@
 {
-  "_how_to": "Site-wide settings. Edit the text between the quotes. 'tagline' is the big line on the home page. 'description' is what Google and link previews show for the home page. Leave youtube empty to hide YouTube links. 'redirects' sends an old address to a new one, for example after renaming a watch folder.",
+  "_how_to": "Site-wide settings. Edit the text between the quotes. 'tagline' and 'subline' are the big lines on the home page. 'watch_tagline' opens the Watches page. 'description' is what Google and link previews show for the home page. 'on_desk' is the 'On the desk now' row on the home page: folder names of any watches, toys or gear, in order. 'journal_title' heads the journal box on the home page. 'sections' holds the intro line for the Toys and Gear pages. Leave youtube empty to hide YouTube links. 'redirects' sends an old address to a new one, for example after renaming a folder. A photo saved as brand/hero.jpg becomes the big home page photo (with hero_caption under it) and the site's default share image; without one, the featured watch is shown.",
   "name": "Desk Dives",
   "domain": "https://deskdives.com",
-  "tagline": "Nobody in the meeting knows it's rated to 300 meters. You do.",
-  "description": "Watches built for adventure. Mostly worn to lunch. Dive watches from Seiko, Omega and others, with specs, photos and honest notes.",
-  "dateline": "Mostly Seiko, some Swiss, a few old ones",
+  "tagline": "Things on My Desk",
+  "subline": "Watches, toys, gadgets, and whatever else followed me home.",
+  "watch_tagline": "Nobody in the meeting knows it's rated to 300 meters. You do.",
+  "description": "Interesting things that end up on the desk: dive watches from Seiko, Omega and others, plus toys, gadgets and desk gear, with photos and honest notes.",
+  "dateline": "Watches, toys, gadgets, and other things I probably didn't need",
   "author": "Mark",
   "email": "",
   "youtube": "https://www.youtube.com/@deskdives",
@@ -13,13 +15,33 @@
   "on_wrist": "seikomatic-weekdater",
   "on_wrist_note": "",
   "subscribe_title": "New videos on YouTube",
-  "subscribe_text": "One watch, one desk, about ten minutes. No unboxing music.",
+  "subscribe_text": "One thing, one desk, a few minutes. No unboxing music.",
   "benchmark": {
     "name": "Rolex Submariner Date, list",
     "price": 10250,
     "note": "Submariner Date 126610LN US list price after the January 2026 increase. Checked October 2026."
   },
   "redirects": {
-    "/watches/seiko-sla017/": "/watches/seiko-sbdx041/"
-  }
+    "/watches/seiko-sla017/": "/watches/seiko-sbdx041/",
+    "/toys/green-godzilla/": "/toys/godzilla-54-green-flare/"
+  },
+  "home_title": "Desk Dives · Watches, Toys, Gadgets and Desk Gear",
+  "on_desk": [
+    "seiko-marinemaster-300",
+    "godzilla-54-green-flare",
+    "mechanical-keyboard",
+    "seiko-sbdx041",
+    "uni-ball-one",
+    "marusan-godzilla-l-tail",
+    "seiko-sla037",
+    "coffee-mug"
+  ],
+  "videos_sub": "Unboxings, close-ups, desk nonsense, and the occasional bad decision.",
+  "journal_sub": "Short reviews, collector nonsense, and things I probably spent too much time thinking about.",
+  "sections": {
+    "toys": "Godzilla, Star Wars, LEGO and other things grown men are allowed to own.",
+    "gear": "Pens, keyboards, mugs, and the odd little tool."
+  },
+  "journal_title": "Notes from the desk",
+  "hero_caption": "The desk: Godzilla, a uni-ball One, too many Sharpies"
 }

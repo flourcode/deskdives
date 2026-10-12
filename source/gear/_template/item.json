@@ -1,0 +1,26 @@
+{
+  "order": 1,
+  "draft": false,
+  "added": "2026-10-12",
+  "name": "Pilot Custom 74",
+  "maker": "Pilot",
+  "kind": "Fountain pen",
+  "line": "One dry sentence about it.",
+  "what": "One or two sentences: what it is.",
+  "why": [
+    "Why it's on the desk. A mug can be three sentences."
+  ],
+  "specs": {
+    "Nib": "",
+    "Ink": "",
+    "Year": ""
+  },
+  "acquired": "",
+  "verdict": "Yes.",
+  "verdict_note": "",
+  "key_numbers": [],
+  "captions": {},
+  "affiliate_url": "",
+  "affiliate_label": "",
+  "_how_to": "Copy this whole folder, rename the copy (lowercase, dashes, e.g. godzilla-minus-one), edit this file, and drop photos in the folder. It shows on the site once it has a name and at least one photo. main.jpg is the big photo; any other .jpg becomes a gallery plate, in name order. Every page has the same four parts, each shown once you fill it in: what (What it is), why (Why it's on the desk, one paragraph per quoted line), specs (A few details) and verdict plus verdict_note (Would I buy it again?). added is the date it joined the desk, for Latest from the desk on the home page. Set draft to true to hide it while you work on it. Folders starting with an underscore are never published."
+}
