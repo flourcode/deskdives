@@ -3,9 +3,9 @@
   "name": "Desk Dives",
   "domain": "https://deskdives.com",
   "tagline": "Things on My Desk",
-  "subline": "Watches, toys, gadgets, and whatever else followed me home.",
+  "subline": "Watch bezels, squishies, clicky pens, keyboards, Godzilla, and other things I probably didn't need.",
   "watch_tagline": "Nobody in the meeting knows it's rated to 300 meters. You do.",
-  "description": "Interesting things that end up on the desk: dive watches from Seiko, Omega and others, plus toys, gadgets and desk gear, with photos and honest notes.",
+  "description": "Cool, tactile, collectible things on my desk: dive watch bezel ASMR, squishies, keyboards, Godzilla figures and other desk gear, with photos and honest notes.",
   "dateline": "Watches, toys, gadgets, and other things I probably didn't need",
   "author": "Mark",
   "email": "",
@@ -15,7 +15,7 @@
   "on_wrist": "seikomatic-weekdater",
   "on_wrist_note": "",
   "subscribe_title": "New videos on YouTube",
-  "subscribe_text": "One thing, one desk, a few minutes. No unboxing music.",
+  "subscribe_text": "Bezel clicks, squishies and unboxings. Under a minute each.",
   "benchmark": {
     "name": "Rolex Submariner Date, list",
     "price": 10250,
@@ -25,7 +25,7 @@
     "/watches/seiko-sla017/": "/watches/seiko-sbdx041/",
     "/toys/green-godzilla/": "/toys/godzilla-54-green-flare/"
   },
-  "home_title": "Desk Dives · Watches, Toys, Gadgets and Desk Gear",
+  "home_title": "Desk Dives · Watch ASMR, Toys and Desk Gear",
   "on_desk": [
     "seiko-marinemaster-300",
     "godzilla-54-green-flare",
@@ -36,12 +36,13 @@
     "seiko-sla037",
     "coffee-mug"
   ],
-  "videos_sub": "Unboxings, close-ups, desk nonsense, and the occasional bad decision.",
+  "videos_sub": "Bezel clicks, squishies, unboxings, and the occasional bad decision.",
   "journal_sub": "Short reviews, collector nonsense, and things I probably spent too much time thinking about.",
   "sections": {
     "toys": "Godzilla, Star Wars, LEGO and other things grown men are allowed to own.",
     "gear": "Pens, keyboards, mugs, and the odd little tool."
   },
   "journal_title": "Notes from the desk",
-  "hero_caption": "The desk: Godzilla, a uni-ball One, too many Sharpies"
+  "hero_caption": "The desk: Godzilla, a uni-ball One, too many Sharpies",
+  "listen_title": "Listen to the desk"
 }

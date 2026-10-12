@@ -164,7 +164,9 @@ Open `source/videos.json`, click the pencil, and add an entry at the top of the 
 
 - `url` is the video's link, copied straight from YouTube's Share button. Regular videos, youtu.be links and Shorts all work.
 - Shorts show in a tall 9:16 frame with a SHORT tag.
-- `watches` lists the folder names of the watches in the video, so it appears on those watch pages too.
+- `watches` (or `things`) lists the folder names of the watches, toys or gear in the video, so it appears on their pages too.
+- `"sound": true` marks an ASMR or sound-first video: it gets a 🔊 Sound on tag, and the things in it show under the 🔊 Sounds filter on The desk. Titles with "ASMR" in them count automatically.
+- The four newest videos show near the top of the home page under "Listen to the desk".
 - Optional cover image: upload a JPG named after the video id (the 11 characters after `/shorts/` or `v=`) to `source/videos`, for example `source/videos/xPnFMMdfSJY.jpg`. Without one, YouTube's thumbnail is used.
 
 Videos load from YouTube only when someone presses play, which keeps the site fast.

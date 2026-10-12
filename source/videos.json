@@ -1,13 +1,50 @@
 {
-  "_how_to": "One entry per YouTube video, newest first. Paste the video's link into 'url' (regular videos and Shorts both work; Shorts show in a tall frame). 'watches' (or 'things') lists the folder names of the watches, toys or gear the video features, so it shows on their pages too. Optional: upload a cover image named after the video id to source/videos (for example xPnFMMdfSJY.jpg) to use instead of YouTube's thumbnail.",
+  "_how_to": "One entry per YouTube video, newest first. Paste the video's link into 'url' (regular videos and Shorts both work; Shorts show in a tall frame). 'watches' or 'things' lists the folder names of the watches, toys or gear it features, so it shows on their pages too. Set \"sound\": true for ASMR and other sound-first videos: they get the 🔊 tag, and the things in them show under the Sounds filter on The desk. Optional: upload a cover image named after the video id to source/videos (for example xPnFMMdfSJY.jpg) to use instead of YouTube's thumbnail.",
   "videos": [
     {
+      "url": "https://youtube.com/shorts/rZnid9JJ8tQ",
+      "title": "ASMR Butter Squishy 😱",
+      "date": "2026-10-12",
+      "sound": true,
+      "summary": "One squish, very slow recovery.",
+      "things": [
+        "butter-squishy"
+      ]
+    },
+    {
       "url": "https://youtube.com/shorts/4YlKzRHyY3c",
-      "title": "Unboxing Godzilla Minus One Roaring Blue",
+      "title": "Old Man Struggles to Unbox Godzilla Minus One Mystery Box",
       "date": "2026-10-12",
       "summary": "A Super7 ReAction blind box, opened at the kitchen table.",
       "things": [
         "godzilla-minus-one-roaring-blue"
+      ]
+    },
+    {
+      "url": "https://youtube.com/shorts/rFRA5LrfbzQ",
+      "title": "Seiko Bezel ASMR",
+      "date": "2026-10-11",
+      "sound": true,
+      "summary": "Bezel clicks, close up. Sound on.",
+      "watches": []
+    },
+    {
+      "url": "https://youtube.com/shorts/4ciadlYvkWg",
+      "title": "Citizen Promaster Tough — Ride or Die",
+      "date": "2026-10-11",
+      "summary": "Super Titanium, Eco-Drive, 200 m. The one that goes everywhere.",
+      "watches": [
+        "citizen-promaster-tough"
+      ]
+    },
+    {
+      "url": "https://youtube.com/shorts/H6j0ZhUt2eE",
+      "title": "Seiko Captain Willard Bezel ASMR 🔊",
+      "date": "2026-10-10",
+      "sound": true,
+      "summary": "The Willard's bezel, turned slowly. Sound on.",
+      "watches": [
+        "seiko-willard"
       ]
     },
     {

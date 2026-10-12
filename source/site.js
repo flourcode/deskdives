@@ -1,11 +1,15 @@
 // Desk Dives: click-to-play YouTube, share links, The desk filters.
 (function () {
+  // Shorts try YouTube's tall thumbnail first; if it's missing (or a tiny placeholder), use the standard one.
+  var fb = function (img) { var u = img.getAttribute("data-fb"); if (u && img.src !== u) { img.removeAttribute("data-fb"); img.src = u; } };
+  document.addEventListener("error", function (e) { if (e.target.tagName === "IMG") fb(e.target); }, true);
+  document.addEventListener("load", function (e) { var i = e.target; if (i.tagName === "IMG" && i.hasAttribute("data-fb") && i.naturalWidth && i.naturalWidth < 200) fb(i); }, true);
   document.addEventListener("click", function (e) {
     var c = e.target.closest && e.target.closest("[data-filter]");
     if (c) {
       var f = c.getAttribute("data-filter");
       document.querySelectorAll("[data-filter]").forEach(function (b) { b.setAttribute("aria-pressed", b === c ? "true" : "false"); });
-      document.querySelectorAll("[data-filterable] > [data-cat]").forEach(function (el) { el.hidden = !(f === "all" || el.getAttribute("data-cat") === f); });
+      document.querySelectorAll("[data-filterable] > [data-cat]").forEach(function (el) { el.hidden = !(f === "all" || el.getAttribute("data-cat") === f || (f === "sound" && el.hasAttribute("data-sound"))); });
       return;
     }
     var t = e.target.closest && e.target.closest("[data-yt]");

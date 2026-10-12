@@ -506,10 +506,14 @@ def watch_card(w, mixed=False):
     rk = rank(w)
     rk_html = f"<b>{rk} · WRIST TIME</b>" if rk == "P1" else (f"<span>{rk}</span>" if rk else "")
     no = f"WATCH · NO. {w['no']}" if mixed else f"NO. {w['no']}"
-    return f"""        <a class="watch-card" href="{w['url']}" data-cat="watches">
+    return f"""        <a class="watch-card" href="{w['url']}" data-cat="watches"{sound_attr(w)}>
           {plate(w, caption=False)}
           <div class="meta"><span class="no"><span>{no}</span>{rk_html}</span><span class="name">{e(w['title'])}</span><span class="ref">{e(ref_text(w))}</span><span class="line">{e(w.get('line',''))}</span></div>
         </a>"""
+
+
+def sound_attr(t):
+    return ' data-sound="1"' if t["slug"] in SOUND else ""
 
 
 def thing_sub(t):
@@ -518,7 +522,7 @@ def thing_sub(t):
 
 def thing_card(t, mixed=False):
     no = f"{CAT_ONE[t['cat']].upper()} · NO. {t['no']}" if mixed else f"NO. {t['no']}"
-    return f"""        <a class="watch-card" href="{t['url']}" data-cat="{t['cat']}">
+    return f"""        <a class="watch-card" href="{t['url']}" data-cat="{t['cat']}"{sound_attr(t)}>
           {plate(t, caption=False)}
           <div class="meta"><span class="no"><span>{no}</span></span><span class="name">{e(t['title'])}</span><span class="ref">{e(thing_sub(t))}</span><span class="line">{e(t.get('line',''))}</span></div>
         </a>"""
@@ -545,15 +549,17 @@ def video_id(v):
 def video_card(v, big=False):
     short = bool(v.get("short"))
     big = big and not short
-    thumb = v.get("poster") or f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
+    hq = f"https://i.ytimg.com/vi/{e(v['id'])}/hqdefault.jpg"
+    thumb = v.get("poster") or (f"https://i.ytimg.com/vi/{e(v['id'])}/oardefault.jpg" if short else hq)
+    fb = f' data-fb="{hq}"' if (short and not v.get("poster")) else ""
     poster_srcset = (' srcset="' + ", ".join(f"{u} {x}w" for u, x in v["poster_set"]) + '" sizes="(max-width: 600px) 80vw, 300px"') if v.get("poster_set") else ""
     w_titles = ", ".join(e(ALL_BY[s]["title"]) for s in features(v) if s in ALL_BY)
     cls = "vid" + (" big" if big else "") + (" short" if short else "")
     link = f"https://www.youtube.com/shorts/{e(v['id'])}" if short else f"https://www.youtube.com/watch?v={e(v['id'])}"
     tc = f'<span class="tc">{e(v.get("length",""))}</span>' if v.get("length") else ""
-    tag = '<span class="tag">Short</span>' if short else ""
+    tag = ('<span class="tag">Short' + (' · 🔊 Sound on' if v.get("sound") else "") + '</span>') if short else ('<span class="tag">🔊 Sound on</span>' if v.get("sound") else "")
     return f"""<div class="{cls}">
-          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}"{poster_srcset} alt="" loading="lazy" decoding="async"><span class="play"></span>{tag}{tc}</button>
+          <button type="button" class="thumb" data-yt="{e(v['id'])}" aria-label="Play video: {e(v['title'])}"><img src="{thumb}"{poster_srcset}{fb} alt="" loading="lazy" decoding="async"><span class="play"></span>{tag}{tc}</button>
           <h3><a href="{link}" target="_blank" rel="noopener">{e(v['title'])}</a></h3>
           <p>{e(v.get('summary',''))}{(' · Features ' + w_titles) if w_titles else ''}</p>
         </div>"""
@@ -605,6 +611,18 @@ def build_home():
         video_mod = "\n".join(video_card(v) for v in VIDEOS[:1])
     else:
         video_mod = '<div class="vid"><div class="thumb static"><span class="play"></span></div><p class="empty-note">The first new video is coming soon.</p></div>'
+    video_col = f"""<div class="col-b"><span class="label">On YouTube</span><h2 class="mod-head">{'Latest video' if len(VIDEOS) <= 1 else 'Latest videos'}</h2>
+        <p class="mod-sub">{e(S.get("videos_sub") or "")}</p>{video_mod}
+        <a class="more-link" href="/videos/">All videos →</a></div>"""
+    # Listen to the desk: the newest Shorts, near the top, because the videos are what's working
+    listen = ""
+    if len(VIDEOS) >= 2:
+        row = "\n".join(video_card(v) for v in VIDEOS[:4])
+        listen = f"""<section class="sect" aria-labelledby="listen-h">
+      <div class="sect-head"><h2 id="listen-h" class="label">{e(S.get("listen_title") or "Latest videos")}</h2><a href="/videos/">All {len(VIDEOS)} videos →</a></div>
+      <p class="mod-sub listen-sub">{e(S.get("videos_sub") or "")}</p>
+      <div class="shorts-row">{row}</div>
+    </section>"""
     journal_col = ""
     if POSTS:
         journal_col = f"""<div class="col-a"><span class="label">Only on {e(NAME)}</span><h2 class="mod-head">{e(S.get("journal_title") or "From the journal")}</h2>
@@ -631,6 +649,7 @@ def build_home():
       </div>
       {hero_plate}
     </section>
+    {listen}
     <section class="sect" aria-labelledby="col-h">
       <div class="sect-head"><h2 id="col-h" class="label">On the desk now</h2><a href="/desk/">The whole desk · {len(ALL)} things →</a></div>
       <div class="collection">
@@ -638,11 +657,9 @@ def build_home():
       </div>
     </section>
     {latest}
-    <section class="grid modules{'' if POSTS else ' two'}" aria-label="More">
+    <section class="grid modules{(' two' if not POSTS else '') if not listen else (' one' if not POSTS else ' two-j')}" aria-label="More">
       {journal_col}
-      <div class="col-b"><span class="label">On YouTube</span><h2 class="mod-head">{'Latest video' if len(VIDEOS) <= 1 else 'Latest videos'}</h2>
-        <p class="mod-sub">{e(S.get("videos_sub") or "")}</p>{video_mod}
-        <a class="more-link" href="/videos/">All videos →</a></div>
+      {'' if listen else video_col}
       <div class="col-c">{spot}{sub}</div>
     </section>
   </div>"""
@@ -864,7 +881,8 @@ def build_desk():
     chips = ""
     if len(LIVE_CATS) > 1:
         chips = '<div class="chips" role="group" aria-label="Show">' + '<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span>' + str(len(ALL)) + '</span></button>' + \
-            "".join(f'<button type="button" class="chip" data-filter="{c}" aria-pressed="false">{e(CAT_LABEL[c])} <span>{len(WATCHES) if c == "watches" else len(THINGS[c])}</span></button>' for c in LIVE_CATS) + "</div>"
+            "".join(f'<button type="button" class="chip" data-filter="{c}" aria-pressed="false">{e(CAT_LABEL[c])} <span>{len(WATCHES) if c == "watches" else len(THINGS[c])}</span></button>' for c in LIVE_CATS) + \
+            (f'<button type="button" class="chip" data-filter="sound" aria-pressed="false">🔊 Sounds <span>{sum(1 for t in ALL if t["slug"] in SOUND)}</span></button>' if any(t["slug"] in SOUND for t in ALL) else "") + "</div>"
     cards = "\n".join(watch_card(t, mixed=True) for t in ALL)
     body = f"""  <div class="wrap">
     <section class="page-head"><span class="label">Everything</span><h1 class="glow">The desk</h1>
@@ -1327,6 +1345,8 @@ if __name__ == "__main__":
             v["poster_set"], _ = widths(im, f"images/videos/{vid}", [360, 540, 720])
             v["poster"] = pick(v["poster_set"], 540)
         VIDEOS.append(v)
+    # things with a sound-first video (ASMR, squish, clicks): tagged on cards and filterable on The desk
+    SOUND = {s for v in VIDEOS if v.get("sound") or re.search(r"\basmr\b", v.get("title", ""), re.I) for s in features(v)}
     for v in VIDEOS:
         for s in features(v):
             if s not in ALL_BY:
